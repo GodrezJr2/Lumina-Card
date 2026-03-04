@@ -1,0 +1,123 @@
+// This is your Prisma schema file
+// Local dev: MySQL (XAMPP) — lihat .env.example
+// Production: TiDB Cloud (MySQL-compatible, SSL required) — lihat .env.example
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "mysql"
+  url       = env("DATABASE_URL")
+  // TiDB Cloud requires SSL — aktifkan dengan menambahkan
+  // ?sslaccept=strict di connection string (lihat .env.example)
+  relationMode = "prisma"
+}
+
+enum Role {
+  BASIC_USER
+  DIY_CLIENT
+  FULL_SERVICE_CLIENT
+  USHER_STAFF
+  SUPER_ADMIN
+}
+
+enum GuestStatus {
+  Draft
+  Sent
+  Opened
+  Checked_In
+}
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  email              String    @unique
+  password           String
+  name               String?
+  role               Role      @default(BASIC_USER)
+  /// Template yang dibeli dari katalog (khusus template-only buyer)
+  lockedTemplateId   String?
+  /// JSON array of purchased templateIds (history)
+  purchasedTemplates String?   @db.Text
+  /// Soft delete — jika diisi, akun dianggap dihapus
+  deletedAt          DateTime?
+  /// Siapa yang menghapus (userId superAdmin)
+  deletedBy          Int?
+  createdAt          DateTime  @default(now())
+  events             Event[]
+  changeLogs         ChangeLog[]
+
+  @@map("users")
+}
+
+model ChangeLog {
+  id          Int      @id @default(autoincrement())
+  /// Siapa yang melakukan perubahan (userId)
+  actorId     Int?
+  actor       User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  /// Kategori: user_role_change | user_delete | user_restore | user_create | system
+  category    String
+  /// Deskripsi singkat perubahan
+  description String   @db.Text
+  /// Data lama (JSON string, opsional)
+  before      String?  @db.Text
+  /// Data baru (JSON string, opsional)
+  after       String?  @db.Text
+  /// Target userId (jika perubahan terkait user tertentu)
+  targetId    Int?
+  createdAt   DateTime @default(now())
+
+  @@map("change_logs")
+}
+
+model Event {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  name         String
+  date         DateTime
+  location     String
+  /// Internal editor template ID (ethereal | royal | corporate | neon)
+  template     String    @default("default")
+  /// Catalog template ID (ethereal-garden | royal-gold | corporate-modern | cyber-tech)
+  templateId   String?
+  /// URL slug unik untuk undangan publik → /i/[slug]
+  slugUrl      String?   @unique
+  /// Nama pasangan (terpisah agar bisa dipakai di template secara fleksibel)
+  brideName    String?
+  groomName    String?
+  /// Field lama — tetap ada untuk backward compat
+  coupleNames  String?
+  story        String?   @db.Text
+  venueAddress String?
+  gallery      String?   @db.Text
+  /// JSON string untuk override: { primaryColor, fontFamily, heroImage, ... }
+  themeConfig  String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guests       Guest[]
+
+  @@map("events")
+}
+
+model Guest {
+  id         Int         @id @default(autoincrement())
+  eventId    Int
+  name       String
+  whatsapp   String
+  token      String      @unique @default(uuid())
+  status     GuestStatus @default(Draft)
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  attendance Attendance?
+
+  @@map("guests")
+}
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  guestId     Int      @unique
+  checkInTime DateTime @default(now())
+  guest       Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@map("attendances")
+}
