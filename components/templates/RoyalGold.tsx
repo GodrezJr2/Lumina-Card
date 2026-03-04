@@ -149,7 +149,7 @@ export function RoyalGoldTemplate(props: InvitationProps) {
             >
               RSVP Online
             </button>
-            <Link href={`/i/${token}/qr`} className="text-slate-400 hover:text-yellow-400 transition text-sm flex items-center gap-1">
+            <Link href={`/inv/${token}/qr`} className="text-slate-400 hover:text-yellow-400 transition text-sm flex items-center gap-1">
               <span className="material-symbols-outlined text-base leading-none">qr_code_2</span>
               Lihat QR Tiket
             </Link>

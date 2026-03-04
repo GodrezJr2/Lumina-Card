@@ -56,7 +56,7 @@ export function ModernCorporateTemplate(props: InvitationProps) {
                 RSVP Sekarang
               </button>
               <Link
-                href={`/i/${token}/qr`}
+                href={`/inv/${token}/qr`}
                 className="flex h-12 items-center justify-center rounded-lg border border-slate-200 bg-white px-8 text-base font-bold text-slate-800 transition-all hover:bg-slate-50"
               >
                 <span className="material-symbols-outlined mr-2 text-lg leading-none">qr_code_2</span>
@@ -131,7 +131,7 @@ export function ModernCorporateTemplate(props: InvitationProps) {
                       <span className="text-xs font-bold uppercase tracking-wide text-indigo-600">Tamu Undangan</span>
                       <p className="text-sm font-medium text-slate-700 mt-0.5">{guestName}</p>
                     </div>
-                    <Link href={`/i/${token}/qr`} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition">
+                    <Link href={`/inv/${token}/qr`} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md transition">
                       <span className="material-symbols-outlined text-indigo-600">qr_code_2</span>
                     </Link>
                   </div>

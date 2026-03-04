@@ -286,7 +286,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
               Konfirmasi Kehadiran
               <span>✦</span>
             </button>
-            <Link href={`/i/${token}/qr`} className="text-sm text-amber-500 hover:text-amber-300 transition flex items-center gap-1">
+            <Link href={`/inv/${token}/qr`} className="text-sm text-amber-500 hover:text-amber-300 transition flex items-center gap-1">
               <span className="material-symbols-outlined text-base leading-none">qr_code_2</span>
               Lihat QR Tiket
             </Link>

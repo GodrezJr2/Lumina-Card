@@ -78,7 +78,7 @@ export function EtherealGardenTemplate(props: InvitationProps) {
               <span className="mr-2 material-symbols-outlined">favorite</span>
               Konfirmasi Kehadiran
             </button>
-            <Link href={`/i/${token}/qr`} className="text-sm text-slate-500 hover:text-emerald-600 transition flex items-center gap-1">
+            <Link href={`/inv/${token}/qr`} className="text-sm text-slate-500 hover:text-emerald-600 transition flex items-center gap-1">
               <span className="material-symbols-outlined text-base leading-none">qr_code_2</span>
               Lihat QR Tiket
             </Link>
