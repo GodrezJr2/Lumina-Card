@@ -14,7 +14,7 @@ export function EtherealGardenTemplate(props: InvitationProps) {
   return (
     <div className="min-h-screen font-sans antialiased overflow-x-hidden" style={{ fontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif" }}>
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-emerald-100/50 bg-white/80 backdrop-blur-md px-6 py-4 lg:px-20">
+      <header className="sticky z-50 flex items-center justify-between border-b border-emerald-100/50 bg-white/80 backdrop-blur-md px-6 py-4 lg:px-20" style={{ top: "var(--preview-bar-height, 0px)" }}>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
             <span className="material-symbols-outlined">local_florist</span>

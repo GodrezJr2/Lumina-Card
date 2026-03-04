@@ -14,7 +14,7 @@ export function ModernCorporateTemplate(props: InvitationProps) {
   return (
     <div className="min-h-screen bg-white antialiased overflow-x-hidden" style={{ fontFamily: "'Manrope', 'Segoe UI', sans-serif" }}>
       {/* ── NAV ── */}
-      <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-slate-100 bg-white/80 px-6 py-4 backdrop-blur-md md:px-10">
+      <header className="sticky z-50 flex w-full items-center justify-between border-b border-slate-100 bg-white/80 px-6 py-4 backdrop-blur-md md:px-10" style={{ top: "var(--preview-bar-height, 0px)" }}>
         <div className="flex items-center gap-3 text-indigo-600">
           <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
             <span className="material-symbols-outlined text-sm">rocket_launch</span>

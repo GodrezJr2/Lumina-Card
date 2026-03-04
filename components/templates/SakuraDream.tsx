@@ -139,7 +139,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
       <SakuraCanvas />
 
       {/* ── NAV ── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 lg:px-20 bg-rose-50/70 backdrop-blur-md border-b border-rose-200/40">
+      <header className="sticky z-50 flex items-center justify-between px-6 py-4 lg:px-20 bg-rose-50/70 backdrop-blur-md border-b border-rose-200/40" style={{ top: "var(--preview-bar-height, 0px)" }}>
         <div className="flex items-center gap-3">
           <span className="text-2xl">🌸</span>
           <span className="text-lg font-bold text-rose-800" style={{ fontFamily: "'Noto Serif JP', serif" }}>

@@ -1,11 +1,13 @@
 /**
- * useSmoothScroll — hook untuk smooth scrolling pakai anime.js
- * 
+ * useSmoothScroll — hook untuk smooth scrolling
+ *
+ * Pendekatan: CSS scroll-behavior: smooth (native, reliable, tidak jitter)
+ * + scroll-margin-top pada section target untuk offset sticky header.
+ *
  * Cara pakai:
  *   const { scrollTo } = useSmoothScroll();
  *   scrollTo("#rsvp");          // scroll ke element dengan id
  *   scrollTo(0);                // scroll ke top
- *   scrollTo(element, 800);     // custom duration
  */
 
 import { useCallback } from "react";
@@ -18,69 +20,54 @@ interface SmoothScrollOptions {
   easing?: (t: number) => number;
 }
 
-// Easing functions
-const easeInOutQuart = (t: number) =>
-  t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
-
-const easeOutExpo = (t: number) =>
-  t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-
 export function useSmoothScroll() {
   const scrollTo = useCallback(
     (target: ScrollTarget, options: SmoothScrollOptions = {}) => {
-      const {
-        duration = 900,
-        offset = 72,
-        easing = easeOutExpo,
-      } = options;
-
-      // Resolve target position
-      let targetY = 0;
+      const { offset = 72 } = options;
 
       if (typeof target === "number") {
-        targetY = target;
-      } else if (typeof target === "string") {
-        const el = document.querySelector(target);
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        targetY = window.scrollY + rect.top - offset;
+        window.scrollTo({ top: target, behavior: "smooth" });
+        return;
+      }
+
+      let el: HTMLElement | null = null;
+      if (typeof target === "string") {
+        el = document.querySelector(target) as HTMLElement | null;
       } else if (target instanceof HTMLElement) {
-        const rect = target.getBoundingClientRect();
-        targetY = window.scrollY + rect.top - offset;
+        el = target;
       }
 
-      targetY = Math.max(0, Math.min(targetY, document.body.scrollHeight - window.innerHeight));
+      if (!el) return;
 
-      const startY = window.scrollY;
-      const distance = targetY - startY;
-      const startTime = performance.now();
-
-      function step(now: number) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = easing(progress);
-
-        window.scrollTo(0, startY + distance * ease);
-
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        }
-      }
-
-      requestAnimationFrame(step);
+      const rect = el.getBoundingClientRect();
+      const targetY = Math.max(0, window.scrollY + rect.top - offset);
+      window.scrollTo({ top: targetY, behavior: "smooth" });
     },
     []
   );
 
-  return { scrollTo, easeInOutQuart, easeOutExpo };
+  return { scrollTo };
 }
 
 /**
  * initSmoothScrollLinks — intercept semua <a href="#..."> di halaman
- * agar pakai smooth scroll anime.js.
+ * agar pakai smooth scroll, sambil juga menghitung offset dari sticky header.
  * Dipanggil sekali saat komponen mount.
  */
 export function initSmoothScrollLinks(offset = 72) {
+  // Aktifkan CSS smooth scroll secara global
+  document.documentElement.style.scrollBehavior = "smooth";
+
+  // Set scroll-margin-top pada semua elemen yang punya id (section targets)
+  function applyScrollMargins() {
+    const elements = document.querySelectorAll("[id]");
+    elements.forEach((el) => {
+      (el as HTMLElement).style.scrollMarginTop = `${offset + 8}px`;
+    });
+  }
+
+  applyScrollMargins();
+
   function handler(e: Event) {
     const anchor = (e.target as HTMLElement).closest("a[href^='#']") as HTMLAnchorElement | null;
     if (!anchor) return;
@@ -88,28 +75,19 @@ export function initSmoothScrollLinks(offset = 72) {
     const hash = anchor.getAttribute("href");
     if (!hash || hash === "#") return;
 
-    const target = document.querySelector(hash);
+    const target = document.querySelector(hash) as HTMLElement | null;
     if (!target) return;
 
     e.preventDefault();
 
     const rect = target.getBoundingClientRect();
     const targetY = Math.max(0, window.scrollY + rect.top - offset);
-    const startY = window.scrollY;
-    const distance = targetY - startY;
-    const duration = 900;
-    const startTime = performance.now();
-
-    function step(now: number) {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      window.scrollTo(0, startY + distance * ease);
-      if (progress < 1) requestAnimationFrame(step);
-    }
-
-    requestAnimationFrame(step);
+    window.scrollTo({ top: targetY, behavior: "smooth" });
   }
 
   document.addEventListener("click", handler);
-  return () => document.removeEventListener("click", handler);
+  return () => {
+    document.removeEventListener("click", handler);
+    document.documentElement.style.scrollBehavior = "";
+  };
 }

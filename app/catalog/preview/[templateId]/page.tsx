@@ -101,7 +101,9 @@ export default function CatalogPreviewPage() {
       </div>
 
       {/* ── Template render ── */}
-      <div className="mt-6 pb-24">
+      {/* previewOffset = tinggi notice banner (~80px) + mt-6 (24px) supaya
+          template sticky header nempel tepat di bawah catalog top bar */}
+      <div className="mt-6 pb-24" style={{ "--preview-bar-height": "56px", "--template-scroll-offset": "120px" } as React.CSSProperties}>
         <Template {...previewProps} />
       </div>
 

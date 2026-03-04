@@ -163,7 +163,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
       <GoldParticleCanvas />
 
       {/* ── NAV ── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 lg:px-20 bg-amber-950/80 backdrop-blur-md border-b border-amber-700/20">
+      <header className="sticky z-50 flex items-center justify-between px-6 py-4 lg:px-20 bg-amber-950/80 backdrop-blur-md border-b border-amber-700/20" style={{ top: "var(--preview-bar-height, 0px)" }}>
         <div className="flex items-center gap-3">
           <span className="text-amber-400 text-2xl">✦</span>
           <span className="text-lg font-bold text-amber-100 tracking-wide" style={{ fontFamily: "'Cormorant Garamond', serif" }}>

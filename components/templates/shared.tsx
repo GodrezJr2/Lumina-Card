@@ -44,7 +44,13 @@ export function Reveal({ children, className }: { children: React.ReactNode; cla
  */
 export function useSmoothScrollInit(headerHeight = 72) {
   useEffect(() => {
-    return initSmoothScrollLinks(headerHeight);
+    // Cek apakah sedang di-render dalam catalog preview wrapper
+    // (ditandai dengan elemen yang punya CSS var --preview-bar-height)
+    const previewWrapper = document.querySelector("[style*='--preview-bar-height']") as HTMLElement | null;
+    const isInPreview = !!previewWrapper;
+    // Di catalog preview, ada 2 sticky bar: preview top bar (~56px) + template header
+    const offset = isInPreview ? 56 + headerHeight : headerHeight;
+    return initSmoothScrollLinks(offset);
   }, [headerHeight]);
 }
 

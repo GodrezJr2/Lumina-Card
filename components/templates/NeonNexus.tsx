@@ -56,7 +56,7 @@ export function NeonNexusTemplate(props: InvitationProps) {
 
   return (
     <div className="relative flex min-h-screen flex-col font-display bg-[#0B132B] text-slate-100 antialiased overflow-x-hidden">
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[#0B132B]/80 backdrop-blur-md px-6 md:px-10 py-4">
+      <header className="sticky z-50 flex items-center justify-between border-b border-white/10 bg-[#0B132B]/80 backdrop-blur-md px-6 md:px-10 py-4" style={{ top: "var(--preview-bar-height, 0px)" }}>
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-[#ecc813]">celebration</span>
           <span className="text-lg font-bold text-white tracking-tight">Tech Invite</span>
