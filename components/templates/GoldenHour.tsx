@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Reveal, RSVPModal, type InvitationProps } from "./shared";
+import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ function GoldParticleCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10"
+      className="fixed inset-0 pointer-events-none z-0"
       style={{ mixBlendMode: "screen", opacity: 0.6 }}
     />
   );
@@ -131,6 +131,7 @@ function CountdownUnit({ value, label }: { value: string; label: string }) {
 export function GoldenHourTemplate(props: InvitationProps) {
   const { guestName, token, eventName, dateStr, timeStr, location, coupleNames, story, venueAddress, gallery, musicUrl } = props;
   const [rsvpOpen, setRsvpOpen] = useState(false);
+  useSmoothScrollInit(72);
 
   // Parse date for countdown display
   const [countdown, setCountdown] = useState({ d: "—", h: "—", m: "—" });
@@ -179,7 +180,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative flex flex-col items-center justify-center min-h-[92vh] px-4 text-center overflow-hidden z-20">
+      <section className="relative flex flex-col items-center justify-center min-h-[92vh] px-4 text-center overflow-hidden">
         {/* BG */}
         {gallery[0] ? (
           <motion.div
@@ -294,7 +295,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
       </section>
 
       {/* ── BODY ── */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative z-20">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative">
         {/* Ornamental divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(251,191,36,0.4))" }} />
@@ -411,7 +412,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
         </Reveal>
       </main>
 
-      <footer className="py-10 text-center relative z-20" style={{ borderTop: "1px solid rgba(251,191,36,0.15)", background: "rgba(26,10,0,0.6)" }}>
+      <footer className="py-10 text-center relative" style={{ borderTop: "1px solid rgba(251,191,36,0.15)", background: "rgba(26,10,0,0.6)" }}>
         <p className="text-amber-400 text-2xl mb-2" style={{ fontFamily: "'Great Vibes', cursive" }}>
           {coupleNames}
         </p>

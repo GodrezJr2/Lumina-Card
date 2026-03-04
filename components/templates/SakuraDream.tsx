@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Reveal, RSVPModal, type InvitationProps } from "./shared";
+import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ function SakuraCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10"
+      className="fixed inset-0 pointer-events-none z-0"
       style={{ opacity: 0.7 }}
     />
   );
@@ -125,6 +125,7 @@ function CharReveal({ text, className, delay = 0 }: { text: string; className?: 
 export function SakuraDreamTemplate(props: InvitationProps) {
   const { guestName, token, eventName, dateStr, timeStr, location, coupleNames, story, venueAddress, gallery, musicUrl } = props;
   const [rsvpOpen, setRsvpOpen] = useState(false);
+  useSmoothScrollInit(72);
 
   return (
     <div
@@ -154,7 +155,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 text-center overflow-hidden z-20">
+      <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-4 text-center overflow-hidden">
         {/* Hero bg image */}
         {gallery[0] && (
           <motion.div
@@ -267,7 +268,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
       </section>
 
       {/* ── STORY ── */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative z-20">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative">
         {/* Divider */}
         <div className="flex items-center justify-center gap-4">
           <div className="h-px bg-gradient-to-r from-transparent to-rose-300 flex-1" />
@@ -375,7 +376,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
         </Reveal>
       </main>
 
-      <footer className="border-t border-rose-200 bg-rose-50 py-10 text-center relative z-20">
+      <footer className="border-t border-rose-200 bg-rose-50 py-10 text-center relative">
         <p className="text-4xl mb-3" style={{ fontFamily: "'Great Vibes', cursive" }}>
           {coupleNames}
         </p>
