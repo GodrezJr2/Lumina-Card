@@ -7,6 +7,8 @@ import {
   RoyalGoldTemplate,
   ModernCorporateTemplate,
   NeonNexusTemplate,
+  SakuraDreamTemplate,
+  GoldenHourTemplate,
 } from "@/components/InvitationTemplates";
 import type { InvitationProps } from "@/components/InvitationTemplates";
 import { CATALOG_TEMPLATE_MAP } from "@/lib/catalog-templates";
@@ -18,6 +20,8 @@ const COMPONENT_MAP: Record<string, React.ComponentType<InvitationProps>> = {
   RoyalGoldTemplate,
   ModernCorporateTemplate,
   NeonNexusTemplate,
+  SakuraDreamTemplate,
+  GoldenHourTemplate,
 };
 
 export default function CatalogPreviewPage() {
