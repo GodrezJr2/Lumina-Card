@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { fadeUp, stagger, Reveal, RSVPModal, type InvitationProps } from "./shared";
+import { fadeUp, stagger, Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function RoyalGoldTemplate(props: InvitationProps) {
   const { guestName, token, eventName, dateStr, timeStr, location, coupleNames, story, venueAddress, gallery, musicUrl } = props;
   const [rsvpOpen, setRsvpOpen] = useState(false);
+  useSmoothScrollInit(0); // RoyalGold tidak ada sticky nav di hero
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 antialiased overflow-x-hidden" style={{ fontFamily: "'Noto Serif', 'Georgia', serif" }}>

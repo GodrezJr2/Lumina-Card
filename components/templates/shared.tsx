@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { initSmoothScrollLinks } from "@/hooks/useSmoothScroll";
 
 // ── Reusable animation variants ──────────────────────────────────────────────
 export const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -34,6 +35,17 @@ export function Reveal({ children, className }: { children: React.ReactNode; cla
       {children}
     </motion.div>
   );
+}
+
+/**
+ * Hook — inisialisasi smooth scroll untuk semua anchor link di dalam template.
+ * Panggil di top-level setiap template component.
+ * @param headerHeight tinggi sticky header dalam px (default 72)
+ */
+export function useSmoothScrollInit(headerHeight = 72) {
+  useEffect(() => {
+    return initSmoothScrollLinks(headerHeight);
+  }, [headerHeight]);
 }
 
 // ── InvitationProps ───────────────────────────────────────────────────────────

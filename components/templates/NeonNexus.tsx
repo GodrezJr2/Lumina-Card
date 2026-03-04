@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Reveal, RSVPModal, type InvitationProps } from "./shared";
+import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function NeonNexusTemplate(props: InvitationProps) {
@@ -16,6 +16,7 @@ export function NeonNexusTemplate(props: InvitationProps) {
   const [attendance, setAttendance] = useState<"hadir" | "tidak">("hadir");
   const [rsvpStatus, setRsvpStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [rsvpOpen, setRsvpOpen] = useState(false);
+  useSmoothScrollInit(72);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

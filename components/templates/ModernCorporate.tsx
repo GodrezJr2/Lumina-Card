@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { fadeUp, stagger, Reveal, RSVPModal, type InvitationProps } from "./shared";
+import { fadeUp, stagger, Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function ModernCorporateTemplate(props: InvitationProps) {
   const { guestName, token, eventName, dateStr, timeStr, location, coupleNames, story, venueAddress, gallery, musicUrl } = props;
   const [rsvpOpen, setRsvpOpen] = useState(false);
+  useSmoothScrollInit(72);
 
   return (
     <div className="min-h-screen bg-white antialiased overflow-x-hidden" style={{ fontFamily: "'Manrope', 'Segoe UI', sans-serif" }}>
