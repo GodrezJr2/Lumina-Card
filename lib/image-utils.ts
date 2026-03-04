@@ -4,39 +4,45 @@
  * Mendukung:
  * - Google Drive share link: https://drive.google.com/file/d/FILE_ID/view?...
  * - Google Drive open link: https://drive.google.com/open?id=FILE_ID
- * - Google Drive uc link (langsung): https://drive.google.com/uc?id=FILE_ID
+ * - Google Drive uc link: https://drive.google.com/uc?id=FILE_ID
  * - URL biasa (imgur, cloudinary, dll): dikembalikan apa adanya
+ *
+ * CATATAN: Pakai format lh3.googleusercontent.com/d/FILE_ID karena
+ * uc?export=view sering diblokir CORS oleh Google untuk domain eksternal.
  */
 export function normalizeImageUrl(url: string): string {
   if (!url || !url.trim()) return url;
 
   try {
-    // Google Drive: https://drive.google.com/file/d/FILE_ID/view
-    // atau          https://drive.google.com/file/d/FILE_ID/edit
-    const fileMatch = url.match(
-      /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/
-    );
-    if (fileMatch) {
-      return `https://drive.google.com/uc?export=view&id=${fileMatch[1]}`;
+    // Ekstrak Google Drive file ID dari berbagai format
+    let fileId: string | null = null;
+
+    // Format: https://drive.google.com/file/d/FILE_ID/view
+    const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileMatch) fileId = fileMatch[1];
+
+    // Format: https://drive.google.com/open?id=FILE_ID
+    if (!fileId) {
+      const openMatch = url.match(/drive\.google\.com\/open\?.*id=([a-zA-Z0-9_-]+)/);
+      if (openMatch) fileId = openMatch[1];
     }
 
-    // Google Drive: https://drive.google.com/open?id=FILE_ID
-    const openMatch = url.match(/drive\.google\.com\/open\?.*id=([a-zA-Z0-9_-]+)/);
-    if (openMatch) {
-      return `https://drive.google.com/uc?export=view&id=${openMatch[1]}`;
-    }
-
-    // Google Drive: https://drive.google.com/uc?id=... (sudah benar, pastikan export=view ada)
-    if (url.includes("drive.google.com/uc")) {
+    // Format: https://drive.google.com/uc?id=FILE_ID
+    if (!fileId && url.includes("drive.google.com/uc")) {
       const u = new URL(url);
-      u.searchParams.set("export", "view");
-      return u.toString();
+      fileId = u.searchParams.get("id");
     }
 
-    // Google Drive thumbnail: https://drive.google.com/thumbnail?id=FILE_ID
-    const thumbMatch = url.match(/drive\.google\.com\/thumbnail\?.*id=([a-zA-Z0-9_-]+)/);
-    if (thumbMatch) {
-      return `https://drive.google.com/uc?export=view&id=${thumbMatch[1]}`;
+    // Format: https://drive.google.com/thumbnail?id=FILE_ID
+    if (!fileId) {
+      const thumbMatch = url.match(/drive\.google\.com\/thumbnail\?.*id=([a-zA-Z0-9_-]+)/);
+      if (thumbMatch) fileId = thumbMatch[1];
+    }
+
+    if (fileId) {
+      // Pakai lh3.googleusercontent.com/d/FILE_ID — ini bypass CORS restriction
+      // dan tidak perlu file jadi "public" secara eksplisit di Google Drive
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
   } catch {
     // URL tidak valid, kembalikan apa adanya
