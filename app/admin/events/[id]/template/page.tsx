@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
+import { normalizeImageUrl } from "@/lib/image-utils";
 
 // Map catalog templateId → internal template id (editor template)
 const CATALOG_TO_EDITOR: Record<string, string> = {
@@ -335,9 +336,17 @@ export default function TemplatePage() {
           <span className="material-symbols-outlined text-[#13c8ec]">photo_library</span>
           Galeri Foto
         </h2>
-        <p className="text-xs text-slate-400 mb-5">Masukkan URL gambar (bisa dari Google Drive, Imgur, dll). Kosongkan jika tidak ingin menampilkan.</p>
+        <p className="text-xs text-slate-400 mb-2">Masukkan URL gambar (bisa dari Google Drive, Imgur, Cloudinary, dll). Kosongkan jika tidak ingin menampilkan.</p>
+        <div className="mb-5 flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2.5 text-xs text-blue-700">
+          <span className="material-symbols-outlined text-blue-400 text-base shrink-0 mt-0.5">tips_and_updates</span>
+          <span>
+            <strong>Google Drive:</strong> Buka file → klik kanan → <em>Dapatkan link</em> → ubah akses ke <strong>Siapa saja yang memiliki link</strong> → tempel URL-nya di sini. URL akan otomatis dikonversi.
+          </span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {gallery.map((url, idx) => (
+          {gallery.map((url, idx) => {
+            const previewUrl = normalizeImageUrl(url);
+            return (
             <div key={idx} className="space-y-2">
               <label className="text-xs font-semibold text-slate-600">Foto {idx + 1}</label>
               <div className="flex gap-2">
@@ -366,13 +375,29 @@ export default function TemplatePage() {
                 )}
               </div>
               {url && (
-                <div className="w-full h-24 rounded-xl overflow-hidden bg-slate-100">
+                <div className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <img
+                    src={previewUrl}
+                    alt={`Gallery ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const parent = target.parentElement;
+                      if (parent && !parent.querySelector(".img-error-msg")) {
+                        const msg = document.createElement("div");
+                        msg.className = "img-error-msg absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400";
+                        msg.innerHTML = `<span class="material-symbols-outlined text-2xl">broken_image</span><span class="text-xs">Gambar tidak dapat dimuat.<br/>Pastikan akses Google Drive sudah publik.</span>`;
+                        parent.appendChild(msg);
+                      }
+                    }}
+                  />
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

@@ -4,6 +4,7 @@
  */
 
 import type { InvitationProps } from "@/components/InvitationTemplates";
+import { normalizeGallery } from "@/lib/image-utils";
 
 interface EventData {
   name:         string;
@@ -40,7 +41,7 @@ export function buildTemplateData(
 
   let gallery: string[] = [];
   if (event.gallery) {
-    try { gallery = JSON.parse(event.gallery); } catch { gallery = []; }
+    try { gallery = normalizeGallery(JSON.parse(event.gallery)); } catch { gallery = []; }
   }
 
   // Nama pasangan: brideName & groomName lebih spesifik dari coupleNames lama
