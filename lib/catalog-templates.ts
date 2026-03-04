@@ -8,7 +8,6 @@
  * 4. Tambah juga mapping ID baru ke CATALOG_TO_EDITOR di app/admin/events/[id]/template/page.tsx
  */
 
-import type { ComponentType } from "react";
 import type { InvitationProps } from "@/components/InvitationTemplates";
 
 // ── Dummy preview data ────────────────────────────────────────────────────────
@@ -73,14 +72,14 @@ export interface CatalogTemplate {
   badgeColor: string;
   /** URL gambar thumbnail untuk grid katalog */
   src: string;
-  /** Nama komponen template di InvitationTemplates.tsx (untuk lazy import di preview) */
-  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate";
+  /** Nama komponen template (untuk lazy import di preview) */
+  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate" | "SakuraDreamTemplate" | "GoldenHourTemplate";
   /** Dummy preview props yang dipakai halaman /catalog/preview/[id] */
   previewProps: InvitationProps;
   /** Gradient warna untuk top bar di halaman preview */
   previewGradient: string;
   /** Internal editor template ID (dipakai CATALOG_TO_EDITOR) */
-  editorId: "ethereal" | "royal" | "corporate" | "neon";
+  editorId: "ethereal" | "royal" | "corporate" | "neon" | "sakura" | "golden";
 }
 
 /**
@@ -162,6 +161,70 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
     },
     previewGradient: "from-[#0B132B] to-slate-800",
     editorId: "neon",
+  },
+  {
+    id: "sakura-dream",
+    title: "Sakura Dream",
+    category: "Wedding • Japanese",
+    price: "Rp 199.000",
+    badge: "New ✨",
+    badgeColor: "bg-rose-400/90 text-white",
+    src: "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=600&q=80",
+    componentName: "SakuraDreamTemplate",
+    previewProps: {
+      guestName: "Tamu Undangan",
+      token: "preview",
+      eventName: "Pernikahan Hana & Ryo",
+      dateStr: "3 April 2027",
+      timeStr: "11.00 WIB",
+      location: "Taman Sakura, Bandung",
+      coupleNames: "Hana & Ryo",
+      story:
+        "Di bawah hujan kelopak sakura yang memukau, kami menemukan satu sama lain. " +
+        "Cinta yang tumbuh bersama musim semi — abadi seperti tradisi yang kami jaga. " +
+        "Bergabunglah dalam perayaan sakura kehidupan kami.",
+      venueAddress: "Jl. Raya Lembang No. 28, Bandung Barat, Jawa Barat 40791",
+      gallery: [
+        "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=600&q=80",
+        "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80",
+        "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80",
+        "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&q=80",
+      ],
+    },
+    previewGradient: "from-rose-600 to-pink-700",
+    editorId: "sakura",
+  },
+  {
+    id: "golden-hour",
+    title: "Golden Hour",
+    category: "Wedding • Luxury",
+    price: "Rp 349.000",
+    badge: "Premium ✦",
+    badgeColor: "bg-amber-400/90 text-amber-950",
+    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
+    componentName: "GoldenHourTemplate",
+    previewProps: {
+      guestName: "Tamu Undangan",
+      token: "preview",
+      eventName: "Pernikahan Arya & Lara",
+      dateStr: "8 Agustus 2026",
+      timeStr: "16.00 WIB",
+      location: "The Golden Ballroom, Surabaya",
+      coupleNames: "Arya & Lara",
+      story:
+        "Seperti matahari terbenam yang memancarkan keemasan, cinta kami tumbuh hangat dan abadi. " +
+        "Di antara butiran debu emas yang berterbangan, kami menemukan takdir yang indah. " +
+        "Hadiri momen golden hour terbaik dalam hidup kami.",
+      venueAddress: "Jl. Pemuda No. 31-37, Surabaya Pusat, Jawa Timur 60271",
+      gallery: [
+        "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
+        "https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&q=80",
+        "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80",
+        "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&q=80",
+      ],
+    },
+    previewGradient: "from-amber-700 to-orange-900",
+    editorId: "golden",
   },
 ];
 

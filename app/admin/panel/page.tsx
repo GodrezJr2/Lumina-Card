@@ -17,6 +17,9 @@ interface Stats {
   totalActive: number;
   guestsToday: number;
   upcoming: number;
+  trendTotalActive: number | null;
+  trendGuests: number | null;
+  trendUpcoming: number | null;
 }
 
 function getEventTag(name: string) {
@@ -42,7 +45,7 @@ const TAG_COLORS: Record<string, string> = {
 
 export default function AdminPanelPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [stats, setStats] = useState<Stats>({ totalActive: 0, guestsToday: 0, upcoming: 0 });
+  const [stats, setStats] = useState<Stats>({ totalActive: 0, guestsToday: 0, upcoming: 0, trendTotalActive: null, trendGuests: null, trendUpcoming: null });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -100,26 +103,35 @@ export default function AdminPanelPage() {
         {/* ── Stats ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: "Total Active Events", value: stats.totalActive, icon: "event_available", color: "text-emerald-600", bg: "bg-emerald-50", trend: "+5%", trendUp: true },
-            { label: "Total Tamu Terdaftar", value: stats.guestsToday,  icon: "groups",          color: "text-blue-600",    bg: "bg-blue-50",    trend: "+12%", trendUp: true },
-            { label: "Upcoming (7 Hari)",    value: stats.upcoming,     icon: "upcoming",        color: "text-violet-600",  bg: "bg-violet-50",  trend: "−2%",  trendUp: false },
-          ].map(({ label, value, icon, color, bg, trend, trendUp }) => (
-            <div key={label} className="flex flex-col justify-between rounded-2xl p-5 bg-white border border-slate-100 shadow-sm">
-              <div className="flex justify-between items-start">
-                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">{label}</p>
-                <div className={`h-9 w-9 rounded-xl ${bg} flex items-center justify-center`}>
-                  <span className={`material-symbols-outlined ${color}`}>{icon}</span>
+            { label: "Total Active Events", value: stats.totalActive, icon: "event_available", color: "text-emerald-600", bg: "bg-emerald-50", trend: stats.trendTotalActive },
+            { label: "Total Tamu Terdaftar", value: stats.guestsToday, icon: "groups",          color: "text-blue-600",   bg: "bg-blue-50",    trend: stats.trendGuests },
+            { label: "Upcoming (7 Hari)",    value: stats.upcoming,    icon: "upcoming",        color: "text-violet-600", bg: "bg-violet-50",  trend: stats.trendUpcoming },
+          ].map(({ label, value, icon, color, bg, trend }) => {
+            const hasTrend = trend !== null && trend !== undefined;
+            const trendUp  = hasTrend && trend >= 0;
+            return (
+              <div key={label} className="flex flex-col justify-between rounded-2xl p-5 bg-white border border-slate-100 shadow-sm">
+                <div className="flex justify-between items-start">
+                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">{label}</p>
+                  <div className={`h-9 w-9 rounded-xl ${bg} flex items-center justify-center`}>
+                    <span className={`material-symbols-outlined ${color}`}>{icon}</span>
+                  </div>
+                </div>
+                <div className="flex items-end gap-2 mt-3">
+                  <p className="text-slate-900 text-3xl font-bold">{loading ? "—" : value}</p>
+                  {hasTrend && !loading && (
+                    <span className={`text-xs font-bold mb-1.5 flex items-center px-1.5 py-0.5 rounded-full ${trendUp ? "text-emerald-700 bg-emerald-50" : "text-rose-600 bg-rose-50"}`}>
+                      <span className="material-symbols-outlined text-[13px]">{trendUp ? "trending_up" : "trending_down"}</span>
+                      {trend > 0 ? "+" : ""}{trend}%
+                    </span>
+                  )}
+                  {!hasTrend && !loading && (
+                    <span className="text-xs font-medium mb-1.5 text-slate-400">—</span>
+                  )}
                 </div>
               </div>
-              <div className="flex items-end gap-2 mt-3">
-                <p className="text-slate-900 text-3xl font-bold">{loading ? "—" : value}</p>
-                <span className={`text-xs font-bold mb-1.5 flex items-center px-1.5 py-0.5 rounded-full ${trendUp ? "text-emerald-700 bg-emerald-50" : "text-rose-600 bg-rose-50"}`}>
-                  <span className="material-symbols-outlined text-[13px]">{trendUp ? "trending_up" : "trending_down"}</span>
-                  {trend}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* ── Filters ── */}

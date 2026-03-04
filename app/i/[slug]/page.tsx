@@ -14,6 +14,8 @@ import {
   RoyalGoldTemplate,
   ModernCorporateTemplate,
   NeonNexusTemplate,
+  SakuraDreamTemplate,
+  GoldenHourTemplate,
 } from "@/components/InvitationTemplates";
 import { buildTemplateData } from "@/lib/template-render";
 
@@ -46,12 +48,20 @@ export default async function PublicInvitationPage({ params, searchParams }: Pro
 
   const { props, tmpl } = buildTemplateData(event, guestName, token || "preview");
 
+  // Tambahkan musicUrl dari event ke props
+  const propsWithMusic = {
+    ...props,
+    musicUrl: (event as Record<string, unknown>).musicUrl as string | undefined ?? "",
+  };
+
   return (
     <>
-      {tmpl === "royal"     && <RoyalGoldTemplate       {...props} />}
-      {tmpl === "corporate" && <ModernCorporateTemplate  {...props} />}
-      {tmpl === "neon"      && <NeonNexusTemplate        {...props} />}
-      {(tmpl === "ethereal" || tmpl === "default") && <EtherealGardenTemplate {...props} />}
+      {tmpl === "royal"     && <RoyalGoldTemplate       {...propsWithMusic} />}
+      {tmpl === "corporate" && <ModernCorporateTemplate  {...propsWithMusic} />}
+      {tmpl === "neon"      && <NeonNexusTemplate        {...propsWithMusic} />}
+      {tmpl === "sakura"    && <SakuraDreamTemplate      {...propsWithMusic} />}
+      {tmpl === "golden"    && <GoldenHourTemplate       {...propsWithMusic} />}
+      {(tmpl === "ethereal" || tmpl === "default") && <EtherealGardenTemplate {...propsWithMusic} />}
     </>
   );
 }
