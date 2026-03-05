@@ -53,7 +53,7 @@ export async function PATCH(
     const {
       name, date, location, template, templateId,
       brideName, groomName, coupleNames,
-      story, venueAddress, gallery, themeConfig,
+      story, venueAddress, gallery, themeConfig, musicUrl,
     } = body;
 
     const updateData: Record<string, unknown> = {};
@@ -69,6 +69,7 @@ export async function PATCH(
     if (venueAddress !== undefined) updateData.venueAddress = venueAddress;
     if (gallery     !== undefined) updateData.gallery     = Array.isArray(gallery) ? JSON.stringify(gallery) : gallery;
     if (themeConfig !== undefined) updateData.themeConfig = typeof themeConfig === "object" ? JSON.stringify(themeConfig) : themeConfig;
+    if (musicUrl    !== undefined) updateData.musicUrl    = musicUrl;
 
     // Regenerate slug jika nama pasangan berubah
     if (brideName !== undefined || groomName !== undefined || coupleNames !== undefined) {

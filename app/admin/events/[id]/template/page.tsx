@@ -78,6 +78,7 @@ interface EventData {
   story: string | null;
   venueAddress: string | null;
   gallery: string | null;
+  musicUrl: string | null;
 }
 
 export default function TemplatePage() {
@@ -99,6 +100,7 @@ export default function TemplatePage() {
   const [story, setStory] = useState("");
   const [venueAddress, setVenueAddress] = useState("");
   const [gallery, setGallery] = useState<string[]>(["", "", "", ""]);
+  const [musicUrl, setMusicUrl] = useState("");
 
   useEffect(() => {
     // Fetch event data
@@ -111,6 +113,7 @@ export default function TemplatePage() {
         setCoupleNames(ev.coupleNames || "");
         setStory(ev.story || "");
         setVenueAddress(ev.venueAddress || "");
+        setMusicUrl(ev.musicUrl || "");
         if (ev.gallery) {
           try {
             const arr = JSON.parse(ev.gallery);
@@ -147,6 +150,7 @@ export default function TemplatePage() {
         story,
         venueAddress,
         gallery: cleanGallery,
+        musicUrl: musicUrl.trim() || null,
       }),
     });
     setSaving(false);
@@ -399,6 +403,49 @@ export default function TemplatePage() {
             );
           })}
         </div>
+      </div>
+
+      {/* Music */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[#13c8ec]">music_note</span>
+          Musik Latar Belakang
+        </h2>
+        <p className="text-xs text-slate-400 mb-3">
+          Musik akan diputar otomatis saat tamu membuka undangan. Mendukung YouTube, SoundCloud, atau link MP3 langsung.
+        </p>
+        <div className="mb-4 flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2.5 text-xs text-blue-700">
+          <span className="material-symbols-outlined text-blue-400 text-base shrink-0 mt-0.5">tips_and_updates</span>
+          <div className="space-y-1">
+            <p><strong>YouTube:</strong> Tempel URL video YouTube biasa, contoh: <code className="bg-blue-100 px-1 rounded">https://www.youtube.com/watch?v=xxxxx</code></p>
+            <p><strong>MP3 langsung:</strong> URL file .mp3 yang bisa diakses publik, contoh dari Google Drive atau Dropbox.</p>
+            <p><strong>Kosongkan</strong> jika tidak ingin ada musik.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={musicUrl}
+            onChange={(e) => setMusicUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=... atau https://link-ke-file.mp3"
+            className="flex-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#13c8ec]/30 focus:border-[#13c8ec]"
+          />
+          {musicUrl && (
+            <button
+              onClick={() => setMusicUrl("")}
+              className="shrink-0 size-10 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition"
+              title="Hapus musik"
+            >
+              <span className="material-symbols-outlined text-base leading-none">close</span>
+            </button>
+          )}
+        </div>
+        {musicUrl && (
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600">
+            <span className="material-symbols-outlined text-base leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            Musik aktif — akan diputar saat tamu membuka undangan.
+          </p>
+        )}
       </div>
 
       {/* RSVP Info */}
