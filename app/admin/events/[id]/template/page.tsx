@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
@@ -79,6 +79,7 @@ interface EventData {
   venueAddress: string | null;
   gallery: string | null;
   musicUrl: string | null;
+  slugUrl: string | null;
 }
 
 export default function TemplatePage() {
@@ -102,6 +103,11 @@ export default function TemplatePage() {
   const [gallery, setGallery] = useState<string[]>(["", "", "", ""]);
   const [musicUrl, setMusicUrl] = useState("");
 
+  // Link publik
+  const [slugUrl, setSlugUrl] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const linkInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     // Fetch event data
     fetch(`/api/events/${id}`)
@@ -114,6 +120,7 @@ export default function TemplatePage() {
         setStory(ev.story || "");
         setVenueAddress(ev.venueAddress || "");
         setMusicUrl(ev.musicUrl || "");
+        setSlugUrl(ev.slugUrl ?? null);
         if (ev.gallery) {
           try {
             const arr = JSON.parse(ev.gallery);
@@ -155,8 +162,29 @@ export default function TemplatePage() {
     });
     setSaving(false);
     if (r.ok) {
+      const data = await r.json();
+      // Update slug URL dari response (muncul setelah nama pasangan diisi)
+      if (data.event?.slugUrl) setSlugUrl(data.event.slugUrl);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    }
+  }
+
+  function copyPublicLink() {
+    const url = `${window.location.origin}/i/${slugUrl}`;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(() => {
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2500);
+      });
+    } else {
+      // Fallback
+      if (linkInputRef.current) {
+        linkInputRef.current.select();
+        document.execCommand("copy");
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2500);
+      }
     }
   }
 
@@ -445,6 +473,73 @@ export default function TemplatePage() {
             <span className="material-symbols-outlined text-base leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
             Musik aktif — akan diputar saat tamu membuka undangan.
           </p>
+        )}
+      </div>
+
+      {/* Link Undangan Publik */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <span className="material-symbols-outlined text-[#13c8ec]">link</span>
+          Link Undangan Publik
+        </h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Link bersih berbasis nama pasangan — bisa dibagikan ke siapa saja tanpa token.
+          Link akan otomatis terbuat setelah kamu mengisi <strong>Nama Pasangan</strong> dan menekan Simpan.
+        </p>
+
+        {slugUrl ? (
+          <div className="space-y-3">
+            {/* Link display */}
+            <div className="flex gap-2 items-center">
+              <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5">
+                <span className="material-symbols-outlined text-[#13c8ec] text-base leading-none shrink-0">public</span>
+                <input
+                  ref={linkInputRef}
+                  type="text"
+                  readOnly
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/i/${slugUrl}`}
+                  className="flex-1 bg-transparent text-sm text-slate-700 font-mono outline-none select-all cursor-pointer"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+              </div>
+              <button
+                onClick={copyPublicLink}
+                className={`shrink-0 flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl transition ${
+                  linkCopied
+                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                    : "bg-[#13c8ec]/10 text-[#13c8ec] border border-[#13c8ec]/20 hover:bg-[#13c8ec]/20"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base leading-none">
+                  {linkCopied ? "check_circle" : "content_copy"}
+                </span>
+                {linkCopied ? "Tersalin!" : "Salin"}
+              </button>
+              <a
+                href={`/i/${slugUrl}`}
+                target="_blank"
+                className="shrink-0 flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+              >
+                <span className="material-symbols-outlined text-base leading-none">open_in_new</span>
+                Buka
+              </a>
+            </div>
+            <p className="text-xs text-slate-400 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-slate-400 text-sm leading-none">info</span>
+              Link ini bisa dibagikan ke semua tamu sekaligus (grup WA, story, dll). Tidak ada tracking individual.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3.5">
+            <span className="material-symbols-outlined text-amber-500 text-xl shrink-0 mt-0.5">pending</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">Link belum tersedia</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Isi <strong>Nama Pasangan</strong> di bagian Kustomisasi Konten, lalu klik <strong>Simpan Perubahan</strong>.
+                Link akan otomatis dibuat berdasarkan nama kalian.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 

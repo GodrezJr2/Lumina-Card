@@ -49,6 +49,10 @@ function GuestsContent() {
   const [deleteId, setDeleteId]   = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [allLinksCopied, setAllLinksCopied] = useState(false);
+
   const loadGuests = useCallback(async () => {
     if (!eventId) { setLoading(false); return; }
     setLoading(true);
@@ -95,6 +99,38 @@ function GuestsContent() {
     }
   }
 
+  function openWhatsApp(guest: Guest, message?: string) {
+    const url = `${window.location.origin}/inv/${guest.token}`;
+    const text = message ?? `Halo ${guest.name}, kami mengundang kamu ke acara kami 🎉\n\nBuka link undangan kamu di sini:\n${url}`;
+    const wa = (guest.whatsapp ?? "").replace(/\D/g, "");
+    const waNumber = wa.startsWith("0") ? "62" + wa.slice(1) : wa;
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`, "_blank");
+  }
+
+  function copyAllLinks() {
+    const origin = window.location.origin;
+    const allText = guests
+      .map((g) => `${g.name}: ${origin}/inv/${g.token}`)
+      .join("\n");
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(allText).then(() => {
+        setAllLinksCopied(true);
+        setTimeout(() => setAllLinksCopied(false), 2500);
+      });
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = allText;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try { document.execCommand("copy"); } catch { /* ignore */ }
+      document.body.removeChild(textarea);
+      setAllLinksCopied(true);
+      setTimeout(() => setAllLinksCopied(false), 2500);
+    }
+  }
+
   function startEdit(g: Guest) {
     setEditId(g.id);
     setEditName(g.name);
@@ -131,6 +167,94 @@ function GuestsContent() {
 
   return (
     <div className="space-y-6">
+
+      {/* ── Share Modal ── */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm px-4 py-8 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-xl bg-green-100 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-green-600 text-xl leading-none">share</span>
+                </div>
+                <div>
+                  <p className="font-bold text-slate-800 text-sm">Bagikan Undangan via WhatsApp</p>
+                  <p className="text-xs text-slate-500">{guests.length} tamu — klik tombol WA per orang, atau salin semua link</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="size-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition"
+              >
+                <span className="material-symbols-outlined text-slate-400 text-base leading-none">close</span>
+              </button>
+            </div>
+
+            {/* Copy All */}
+            <div className="px-6 pt-4 pb-3">
+              <button
+                onClick={copyAllLinks}
+                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition border ${
+                  allLinksCopied
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base leading-none">
+                  {allLinksCopied ? "check_circle" : "content_copy"}
+                </span>
+                {allLinksCopied ? "Semua link berhasil disalin!" : "Salin Semua Link (untuk disebar ke grup)"}
+              </button>
+              <p className="text-xs text-slate-400 text-center mt-2">Format: "Nama: link" per baris — tempel langsung di grup WA atau catatan.</p>
+            </div>
+
+            <div className="px-6 pb-2">
+              <div className="h-px bg-slate-100" />
+              <p className="text-xs text-slate-400 text-center py-2">— atau kirim satu per satu —</p>
+            </div>
+
+            {/* Guest list in modal */}
+            <div className="px-6 pb-6 space-y-2 max-h-96 overflow-y-auto">
+              {guests.map((g) => (
+                <div key={g.id} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
+                  <div className="size-8 rounded-full bg-[#13c8ec]/10 flex items-center justify-center shrink-0">
+                    <span className="text-[#13c8ec] text-xs font-bold">{g.name.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{g.name}</p>
+                    <p className="text-xs text-slate-400 font-mono truncate">/inv/{g.token.slice(0, 16)}…</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => copyLink(g)}
+                      className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition ${
+                        copied === g.id
+                          ? "bg-emerald-100 text-emerald-600"
+                          : "bg-white border border-slate-200 text-slate-600 hover:border-[#13c8ec] hover:text-[#13c8ec]"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm leading-none">
+                        {copied === g.id ? "check" : "link"}
+                      </span>
+                      {copied === g.id ? "✓" : "Link"}
+                    </button>
+                    <button
+                      onClick={() => openWhatsApp(g)}
+                      disabled={!g.whatsapp}
+                      title={g.whatsapp ? `Kirim WA ke ${g.whatsapp}` : "Nomor WA belum diisi"}
+                      className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-green-500 text-white hover:bg-green-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <span className="material-symbols-outlined text-sm leading-none">chat</span>
+                      WA
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete Confirmation Modal ── */}
       {deleteId !== null && (
@@ -173,13 +297,24 @@ function GuestsContent() {
           </p>
         </div>
         {eventId && (
-          <a
-            href={`/admin/guests/add?eventId=${eventId}`}
-            className="inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#0fb3d4] transition"
-          >
-            <span className="material-symbols-outlined text-base leading-none">person_add</span>
-            Import Tamu
-          </a>
+          <div className="flex gap-3">
+            {guests.length > 0 && (
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="inline-flex items-center gap-2 bg-green-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-green-600 transition"
+              >
+                <span className="material-symbols-outlined text-base leading-none">share</span>
+                Bagikan via WA
+              </button>
+            )}
+            <a
+              href={`/admin/guests/add?eventId=${eventId}`}
+              className="inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#0fb3d4] transition"
+            >
+              <span className="material-symbols-outlined text-base leading-none">person_add</span>
+              Import Tamu
+            </a>
+          </div>
         )}
       </div>
 
