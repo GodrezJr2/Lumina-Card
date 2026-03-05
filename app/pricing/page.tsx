@@ -129,11 +129,15 @@ export default async function PricingPage() {
     // Gagal fetch → treat as belum login
   }
 
-  // Filter paket: sembunyikan paket yang tiernya <= currentTier
-  // (kecuali super admin — tampilkan semua tapi dengan badge "Akses Penuh")
-  const visiblePlans = userIsSuperAdmin
-    ? PLANS
-    : PLANS.filter((p) => p.tier > currentTier || currentTier < 0);
+  // Pricing ini untuk layanan ABSEN (QR Scanner + Guest Management), BUKAN template.
+  // DIY_CLIENT = beli template → tier 1 dari katalog template, bukan paket absen.
+  // Jadi semua user kecuali FULL_SERVICE_CLIENT & SUPER_ADMIN harus lihat semua paket.
+  // Hanya FULL_SERVICE_CLIENT yang dianggap sudah punya paket Professional (tier 2).
+  const abosenTier = userIsSuperAdmin ? 99
+    : currentTier >= 2 ? 2   // FULL_SERVICE_CLIENT sudah punya Professional
+    : -1;                     // Semua lainnya (termasuk DIY_CLIENT) belum punya paket absen
+
+  const visiblePlans = userIsSuperAdmin ? PLANS : PLANS; // tampilkan semua selalu
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light font-display text-text-main">
@@ -164,10 +168,10 @@ export default async function PricingPage() {
               Kamu adalah Super Admin — semua fitur sudah aktif
             </div>
           )}
-          {!userIsSuperAdmin && currentTier >= 1 && (
+          {!userIsSuperAdmin && abosenTier >= 2 && (
             <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold text-sm font-semibold px-5 py-2.5 rounded-full">
               <span className="material-symbols-outlined text-base leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-              Paket aktifmu: {PLANS.find(p => p.tier === currentTier)?.name ?? "Pro"} — tampilkan hanya upgrade tersedia
+              Paket Professional sudah aktif — kamu bisa upgrade ke Enterprise
             </div>
           )}
         </div>
@@ -210,7 +214,7 @@ export default async function PricingPage() {
                   ctaStyle={plan.ctaStyle}
                   isEnterprise={plan.name === "Enterprise"}
                   planTier={plan.tier}
-                  currentTier={currentTier}
+                  currentTier={abosenTier}
                   isSuperAdmin={userIsSuperAdmin}
                 />
                 <ul className="space-y-3 mt-2">
