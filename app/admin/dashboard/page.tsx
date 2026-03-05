@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
+import { useRole } from "@/hooks/useRole";
 
 interface Event {
   id: number;
@@ -20,9 +22,18 @@ interface Stats {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isTemplateOnly, loading: roleLoading } = useRole();
   const [events, setEvents] = useState<Event[]>([]);
   const [stats, setStats] = useState<Stats>({ totalGuests: 0, checkedIn: 0, opened: 0, draft: 0 });
   const [loading, setLoading] = useState(true);
+
+  // Template-only buyer tidak punya dashboard — redirect ke events
+  useEffect(() => {
+    if (!roleLoading && isTemplateOnly) {
+      router.replace("/admin/events");
+    }
+  }, [isTemplateOnly, roleLoading, router]);
 
   useEffect(() => {
     fetch("/api/events")

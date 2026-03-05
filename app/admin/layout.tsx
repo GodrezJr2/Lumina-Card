@@ -17,10 +17,16 @@ const NAV = [
   { href: "/admin/upgrade",   icon: "bolt",             label: "Upgrade Paket",      feature: "upgrade" },
 ] as const;
 
+/** Nav yang ditampilkan untuk template-only buyer */
+const NAV_TEMPLATE_ONLY = [
+  { href: "/admin/events",  icon: "palette",    label: "Kustomisasi Template", feature: "events" },
+  { href: "/admin/upgrade", icon: "bolt",       label: "Upgrade Paket",        feature: "upgrade" },
+] as const;
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, role } = useRole();
+  const { user, role, isTemplateOnly } = useRole();
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -31,6 +37,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
+
+  // Pilih nav sesuai tipe user
+  const visibleNav = isTemplateOnly
+    ? NAV_TEMPLATE_ONLY.filter(({ feature }) => !role || can(role, feature))
+    : NAV.filter(({ feature }) => !role || can(role, feature));
 
   return (
     <div className="flex min-h-screen bg-[#f8fbfc]">
@@ -46,14 +57,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <p className="text-sm font-extrabold text-slate-900 leading-none group-hover:text-[#13c8ec] transition-colors">ElegantInvites</p>
-              <p className="text-xs text-slate-400 mt-0.5">Admin Panel</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {isTemplateOnly ? "Template Panel" : "Admin Panel"}
+              </p>
             </div>
           </Link>
         </div>
 
+        {/* Template-only info banner */}
+        {isTemplateOnly && (
+          <div className="mx-3 mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs text-amber-700">
+            <p className="font-semibold mb-0.5 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+              Template Only
+            </p>
+            <p className="text-amber-600">Akses terbatas ke kustomisasi template.{" "}
+              <Link href="/admin/upgrade" className="font-bold underline">Upgrade</Link> untuk fitur lengkap.
+            </p>
+          </div>
+        )}
+
         {/* Nav */}
         <nav className="flex flex-col gap-0.5 p-3 flex-1">
-          {NAV.filter(({ feature }) => !role || can(role, feature)).map(({ href, icon, label }) => {
+          {visibleNav.map(({ href, icon, label }) => {
             const active = pathname === href || (href !== "/admin/guests" && pathname.startsWith(href + "/")) || (href === "/admin/guests" && pathname === "/admin/guests");
             return (
               <Link
@@ -102,7 +128,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
           <Link href="/" className="font-bold text-sm text-slate-800">ElegantInvites</Link>
           <div className="flex gap-1">
-            {NAV.map(({ href, icon }) => (
+            {visibleNav.map(({ href, icon }) => (
               <Link
                 key={href}
                 href={href}
@@ -123,3 +149,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
+

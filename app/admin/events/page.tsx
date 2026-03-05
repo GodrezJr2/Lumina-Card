@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { RoleGate } from "@/components/RoleGate";
+import { useRole } from "@/hooks/useRole";
 
 interface Event {
   id: number;
@@ -12,6 +14,8 @@ interface Event {
 }
 
 export default function EventsPage() {
+  const router = useRouter();
+  const { isTemplateOnly, loading: roleLoading } = useRole();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -23,11 +27,22 @@ export default function EventsPage() {
     setLoading(true);
     const r = await fetch("/api/events");
     const d = await r.json();
-    setEvents(d.events ?? []);
+    const evList: Event[] = d.events ?? [];
+    setEvents(evList);
     setLoading(false);
+
+    // Template-only buyer dengan 1 event → langsung ke template editor
+    if (!roleLoading && isTemplateOnly && evList.length === 1) {
+      router.replace(`/admin/events/${evList[0].id}/template`);
+    }
   }
 
-  useEffect(() => { loadEvents(); }, []);
+  useEffect(() => { loadEvents(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!roleLoading && isTemplateOnly && events.length === 1) {
+      router.replace(`/admin/events/${events[0].id}/template`);
+    }
+  }, [isTemplateOnly, roleLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -57,16 +72,25 @@ export default function EventsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Events</h1>
-          <p className="text-sm text-slate-500 mt-1">Kelola semua event pernikahan kamu.</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {isTemplateOnly ? "Kustomisasi Template" : "Events"}
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            {isTemplateOnly
+              ? "Klik nama event untuk mengubah tampilan undangan kamu."
+              : "Kelola semua event pernikahan kamu."}
+          </p>
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#0fb3d4] transition"
-        >
-          <span className="material-symbols-outlined text-base leading-none">{showForm ? "close" : "add"}</span>
-          {showForm ? "Batal" : "Buat Event"}
-        </button>
+        {/* Sembunyikan tombol buat event untuk template-only buyer */}
+        {!isTemplateOnly && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#0fb3d4] transition"
+          >
+            <span className="material-symbols-outlined text-base leading-none">{showForm ? "close" : "add"}</span>
+            {showForm ? "Batal" : "Buat Event"}
+          </button>
+        )}
       </div>
 
       {/* Create form */}
@@ -157,18 +181,22 @@ export default function EventsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center flex items-center justify-center gap-3">
-                      <a href={`/admin/guests?eventId=${ev.id}`} className="text-[#13c8ec] text-xs font-semibold hover:underline">
-                        Tamu
-                      </a>
-                      <a href={`/admin/guests/add?eventId=${ev.id}`} className="text-violet-500 text-xs font-semibold hover:underline">
-                        + Import
-                      </a>
+                      {!isTemplateOnly && (
+                        <>
+                          <a href={`/admin/guests?eventId=${ev.id}`} className="text-[#13c8ec] text-xs font-semibold hover:underline">
+                            Tamu
+                          </a>
+                          <a href={`/admin/guests/add?eventId=${ev.id}`} className="text-violet-500 text-xs font-semibold hover:underline">
+                            + Import
+                          </a>
+                        </>
+                      )}
                       <a
                         href={`/admin/events/${ev.id}/template`}
                         className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition"
                       >
                         <span className="material-symbols-outlined text-sm leading-none">palette</span>
-                        Template
+                        {isTemplateOnly ? "Edit Template" : "Template"}
                       </a>
                     </td>
                   </tr>

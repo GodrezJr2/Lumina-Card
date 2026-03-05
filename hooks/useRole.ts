@@ -8,6 +8,7 @@ interface MeUser {
   email: string;
   name: string | null;
   role: Role;
+  lockedTemplateId: string | null;
 }
 
 /** Hook untuk ambil user + role dari /api/auth/me */
@@ -22,5 +23,12 @@ export function useRole() {
       .finally(() => setLoading(false));
   }, []);
 
-  return { user, role: user?.role ?? null, loading };
+  return {
+    user,
+    role: user?.role ?? null,
+    lockedTemplateId: user?.lockedTemplateId ?? null,
+    /** Template-only buyer: DIY_CLIENT yang membeli 1 template spesifik (bukan Full Service) */
+    isTemplateOnly: user?.role === "DIY_CLIENT" && !!user?.lockedTemplateId,
+    loading,
+  };
 }
