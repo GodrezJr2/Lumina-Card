@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavbarWrapper from "@/components/NavbarWrapper";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 export const metadata: Metadata = {
   title: "ElegantInvites – Wedding Guest Management",
@@ -23,8 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-background-light font-display text-navy antialiased overflow-x-hidden">
-        <NavbarWrapper />
-        {children}
+        <SmoothScrollProvider>
+          <NavbarWrapper />
+          {children}
+        </SmoothScrollProvider>
       </body>
     </html>
   );
