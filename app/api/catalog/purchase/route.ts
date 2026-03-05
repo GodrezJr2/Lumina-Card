@@ -9,13 +9,26 @@ export const dynamic = "force-dynamic";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const userModel = (prisma as any).user;
 
+// Map catalog templateId → internal editor template id
+const CATALOG_TO_EDITOR: Record<string, string> = {
+  "ethereal-garden":  "ethereal",
+  "royal-gold":       "royal",
+  "corporate-modern": "corporate",
+  "cyber-tech":       "neon",
+  "golden-elegance":  "ethereal",
+  "noir-luxe":        "royal",
+  "modern-summit":    "corporate",
+  "tech-forward":     "corporate",
+};
+
 /**
  * POST /api/catalog/purchase
  * Body: { templateId, templateTitle, processingMethod }
  *
  * Logic:
- * - FULL_SERVICE_CLIENT / SUPER_ADMIN → bebas pilih template (tidak di-lock)
- * - BASIC_USER / DIY_CLIENT           → di-lock ke templateId yang dibeli, upgrade → DIY_CLIENT
+ * - Update role → DIY_CLIENT & lock template
+ * - Auto-create event jika user belum punya event (template-only buyer)
+ * - Return eventId agar frontend bisa redirect langsung ke template editor
  */
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +64,37 @@ export async function POST(req: NextRequest) {
 
     await userModel.update({ where: { id }, data: updateData });
 
+    // ── Auto-create event jika user belum punya event ──────────────────────
+    let eventId: number | null = null;
+    const existingEvents = await prisma.event.findMany({
+      where: { userId: id },
+      select: { id: true },
+      take: 1,
+    });
+
+    if (existingEvents.length === 0) {
+      // Buat event default dengan nama template sebagai placeholder
+      const editorTemplateId = CATALOG_TO_EDITOR[templateId] ?? "ethereal";
+      const defaultDate = new Date();
+      defaultDate.setDate(defaultDate.getDate() + 30); // 30 hari ke depan sebagai default
+
+      const newEvent = await prisma.event.create({
+        data: {
+          userId:     id,
+          name:       templateTitle, // nama event = nama template, bisa diubah nanti
+          date:       defaultDate,
+          location:   "Belum diisi",
+          template:   editorTemplateId,
+          templateId: templateId,
+        },
+        select: { id: true },
+      });
+      eventId = newEvent.id;
+    } else {
+      eventId = existingEvents[0].id;
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
     const orderId = "EI-TPL-" + Date.now().toString(36).toUpperCase();
     const newRole = !freeRole && user.role === "BASIC_USER" ? "DIY_CLIENT" : user.role;
 
@@ -61,6 +105,7 @@ export async function POST(req: NextRequest) {
       lockedTemplateId: !freeRole ? templateId : null,
       role: newRole,
       processingMethod,
+      eventId, // ← dikirim ke frontend untuk redirect langsung
     });
 
     if (!freeRole && user.role === "BASIC_USER") {

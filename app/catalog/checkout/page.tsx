@@ -136,6 +136,7 @@ function CatalogCheckoutContent() {
         orderId: data.orderId,
         locked: String(data.locked),
         processingMethod: selectedProcessing,
+        ...(data.eventId ? { eventId: String(data.eventId) } : {}),
       });
       router.push(`/catalog/success?${sp.toString()}`);
     } catch (err: unknown) {

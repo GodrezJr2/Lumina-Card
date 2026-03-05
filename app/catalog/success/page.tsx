@@ -11,6 +11,7 @@ function CatalogSuccessContent() {
   const total           = params.get("total") || "Gratis";
   const locked          = params.get("locked") === "true";
   const processingMethod = params.get("processingMethod") || "self";
+  const eventId         = params.get("eventId"); // ← event yang auto-dibuat saat purchase
 
   const processingLabel: Record<string, string> = {
     self:    "Input Sendiri",
@@ -71,11 +72,11 @@ function CatalogSuccessContent() {
         <div className="px-6 pb-6 pt-2 flex flex-col gap-3">
           {locked ? (
             <Link
-              href="/admin/events"
+              href={eventId ? `/admin/events/${eventId}/template` : "/admin/events"}
               className="w-full text-center bg-navy text-white font-bold py-3.5 rounded-xl hover:bg-navy-light transition-all shadow-md flex items-center justify-center gap-2"
             >
-              <span className="material-symbols-outlined text-xl leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>edit_note</span>
-              Mulai Edit Template
+              <span className="material-symbols-outlined text-xl leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>palette</span>
+              Mulai Kustomisasi Template
             </Link>
           ) : (
             <Link
@@ -87,11 +88,11 @@ function CatalogSuccessContent() {
             </Link>
           )}
           <Link
-            href="/admin/dashboard"
+            href={locked && eventId ? `/admin/events/${eventId}/template` : "/admin/dashboard"}
             className="w-full text-center border-2 border-navy/20 text-navy font-bold py-3.5 rounded-xl hover:border-navy hover:bg-white transition-all flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-lg leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-            Pergi ke Dashboard
+            {locked && eventId ? "Edit Template Sekarang" : "Pergi ke Dashboard"}
           </Link>
         </div>
       </div>
