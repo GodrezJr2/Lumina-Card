@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  motion, useInView, AnimatePresence,
+  useScroll, useTransform, useSpring,
+  type MotionValue,
+} from "framer-motion";
 import { initSmoothScrollLinks } from "@/hooks/useSmoothScroll";
 
-// ── Reusable animation variants ──────────────────────────────────────────────
+// ── Easing & base variants ────────────────────────────────────────────────────
 export const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
+export const easeIn:  [number, number, number, number] = [0.55, 0, 1, 0.45];
 
 export const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -17,13 +22,13 @@ export const fadeIn = {
 };
 export const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.12 } },
 };
 
-// Scroll-triggered wrapper
+// ── Reveal (legacy, keep for backward compat) ─────────────────────────────────
 export function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
     <motion.div
       ref={ref}
@@ -37,18 +42,319 @@ export function Reveal({ children, className }: { children: React.ReactNode; cla
   );
 }
 
+// ── FloatIn — tiap child float up satu per satu (ochi.design style) ───────────
+/**
+ * Wrap sekelompok elemen agar muncul satu per satu saat scroll.
+ * Setiap child langsung di-stagger, tidak perlu variants.
+ */
+export function FloatIn({
+  children,
+  className,
+  delay = 0,
+  staggerDelay = 0.1,
+  y = 48,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  staggerDelay?: number;
+  y?: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  const container = {
+    hidden: {},
+    show: {
+      transition: { staggerChildren: staggerDelay, delayChildren: delay },
+    },
+  };
+  const item = {
+    hidden: { opacity: 0, y, filter: "blur(4px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.75, ease: easeOut },
+    },
+  };
+
+  // Wrap each direct child in a motion.div automatically
+  const kids = Array.isArray(children) ? children : [children];
+  return (
+    <motion.div
+      ref={ref}
+      variants={container}
+      initial="hidden"
+      animate={inView ? "show" : "hidden"}
+      className={className}
+    >
+      {kids.map((child, i) => (
+        <motion.div key={i} variants={item}>
+          {child}
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+}
+
+// ── SplitText — split per word/char, muncul satu per satu ────────────────────
+/**
+ * Animasi teks ala ochi.design: setiap kata muncul slide up dari bawah.
+ *
+ * @example
+ * <SplitText text="Nichols & Merlyn" className="text-6xl font-bold" />
+ */
+export function SplitText({
+  text,
+  className,
+  delay = 0,
+  staggerDelay = 0.07,
+  y = 60,
+  once = true,
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+  staggerDelay?: number;
+  y?: number;
+  once?: boolean;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once, margin: "-40px" });
+
+  const words = text.split(" ");
+
+  const container = {
+    hidden: {},
+    show: { transition: { staggerChildren: staggerDelay, delayChildren: delay } },
+  };
+  const word = {
+    hidden: { opacity: 0, y, rotateX: 30 },
+    show: {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      transition: { duration: 0.65, ease: easeOut },
+    },
+  };
+
+  return (
+    <motion.span
+      ref={ref}
+      variants={container}
+      initial="hidden"
+      animate={inView ? "show" : "hidden"}
+      className={`inline-flex flex-wrap gap-x-[0.25em] ${className ?? ""}`}
+      style={{ perspective: 600 }}
+    >
+      {words.map((w, i) => (
+        <span key={i} className="overflow-hidden inline-block">
+          <motion.span variants={word} className="inline-block">
+            {w}
+          </motion.span>
+        </span>
+      ))}
+    </motion.span>
+  );
+}
+
+// ── TextReveal — teks "tertulis" karakter demi karakter (ochi style slow) ─────
+export function TextReveal({
+  text,
+  className,
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const chars = text.split("");
+
+  const container = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.03, delayChildren: delay } },
+  };
+  const char = {
+    hidden: { opacity: 0, y: 12 },
+    show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: easeOut } },
+  };
+
+  return (
+    <motion.span
+      ref={ref}
+      variants={container}
+      initial="hidden"
+      animate={inView ? "show" : "hidden"}
+      className={className}
+    >
+      {chars.map((c, i) =>
+        c === " " ? (
+          <span key={i}>&nbsp;</span>
+        ) : (
+          <motion.span key={i} variants={char} className="inline-block">
+            {c}
+          </motion.span>
+        )
+      )}
+    </motion.span>
+  );
+}
+
+// ── ParallaxDiv — parallax container pakai useScroll ─────────────────────────
+/**
+ * Membungkus elemen dengan efek parallax vertical.
+ * speedFactor 0.3 = bergerak 30% lebih lambat dari scroll (halus).
+ */
+export function ParallaxDiv({
+  children,
+  className,
+  speedFactor = 0.35,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  speedFactor?: number;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  // Smoothed progress to eliminate jank
+  const smoothed = useSpring(scrollYProgress, { stiffness: 80, damping: 20 });
+  const y = useTransform(smoothed, [0, 1], [`${-speedFactor * 100 * 0.5}%`, `${speedFactor * 100 * 0.5}%`]);
+
+  return (
+    <div ref={ref} className={`overflow-hidden ${className ?? ""}`} style={style}>
+      <motion.div style={{ y }} className="w-full h-full">
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── ClipReveal — gambar muncul dengan clip-path wipe dari bawah ───────────────
+/**
+ * Gambar/div muncul dengan efek wipe dari bawah (seperti reveal di situs premium).
+ */
+export function ClipReveal({
+  children,
+  className,
+  delay = 0,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  return (
+    <div ref={ref} className={`overflow-hidden ${className ?? ""}`} style={style}>
+      <motion.div
+        initial={{ clipPath: "inset(100% 0% 0% 0%)", scale: 1.1 }}
+        animate={inView
+          ? { clipPath: "inset(0% 0% 0% 0%)", scale: 1 }
+          : { clipPath: "inset(100% 0% 0% 0%)", scale: 1.1 }}
+        transition={{ duration: 0.9, ease: easeOut, delay }}
+        className="w-full h-full"
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Marquee — infinite horizontal scroll text (ochi tagline ticker) ───────────
+export function Marquee({
+  items,
+  className,
+  speed = 30,
+  separator = "✦",
+}: {
+  items: string[];
+  className?: string;
+  speed?: number;
+  separator?: string;
+}) {
+  const text = items.join(` ${separator} `) + ` ${separator} `;
+  // Duplicate for seamless loop
+  const line = `${text}${text}`;
+
+  return (
+    <div className={`overflow-hidden whitespace-nowrap ${className ?? ""}`}>
+      <motion.span
+        className="inline-block"
+        animate={{ x: [0, "-50%"] }}
+        transition={{ duration: speed, ease: "linear", repeat: Infinity }}
+      >
+        {line}
+      </motion.span>
+    </div>
+  );
+}
+
+// ── CountUp — angka naik saat masuk viewport ──────────────────────────────────
+export function CountUp({
+  to,
+  suffix = "",
+  className,
+  duration = 1.5,
+}: {
+  to: number;
+  suffix?: string;
+  className?: string;
+  duration?: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const motionVal = useSpring(0, { stiffness: 80, damping: 20, mass: 0.5 });
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (inView) {
+      motionVal.set(to);
+    }
+  }, [inView, motionVal, to]);
+
+  useEffect(() => {
+    const unsub = motionVal.on("change", (v) => setDisplay(Math.round(v)));
+    return unsub;
+  }, [motionVal]);
+
+  return (
+    <span ref={ref} className={className}>
+      {display}{suffix}
+    </span>
+  );
+}
+
+// ── useParallaxValue — utility hook to get a MotionValue from element scroll ──
+export function useParallaxValue(
+  ref: React.RefObject<HTMLElement | null>,
+  outputRange: [string, string]
+): MotionValue<string> {
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const smoothed = useSpring(scrollYProgress, { stiffness: 60, damping: 18 });
+  return useTransform(smoothed, [0, 1], outputRange);
+}
+
 /**
  * Hook — inisialisasi smooth scroll untuk semua anchor link di dalam template.
- * Panggil di top-level setiap template component.
- * @param headerHeight tinggi sticky header dalam px (default 72)
  */
 export function useSmoothScrollInit(headerHeight = 72) {
   useEffect(() => {
-    // Cek apakah sedang di-render dalam catalog preview wrapper
-    // (ditandai dengan elemen yang punya CSS var --preview-bar-height)
     const previewWrapper = document.querySelector("[style*='--preview-bar-height']") as HTMLElement | null;
     const isInPreview = !!previewWrapper;
-    // Di catalog preview, ada 2 sticky bar: preview top bar (~56px) + template header
     const offset = isInPreview ? 56 + headerHeight : headerHeight;
     return initSmoothScrollLinks(offset);
   }, [headerHeight]);

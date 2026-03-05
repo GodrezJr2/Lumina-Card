@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
+import {
+  SplitText, FloatIn, ClipReveal, Marquee,
+  Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps,
+} from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -235,7 +238,7 @@ export function GoldenHourTemplate(props: InvitationProps) {
               filter: "drop-shadow(0 0 30px rgba(245,158,11,0.3))",
             }}
           >
-            {coupleNames || eventName}
+            <SplitText text={coupleNames || eventName} delay={0.7} staggerDelay={0.1} y={60} />
           </motion.h1>
 
           <motion.div
@@ -294,6 +297,14 @@ export function GoldenHourTemplate(props: InvitationProps) {
         </div>
       </section>
 
+      {/* ── MARQUEE ── */}
+      <Marquee
+        items={["Golden Hour", "Momen Emas", "Cinta Abadi", "Kebahagiaan"]}
+        className="py-3 bg-amber-950/60 text-amber-600/80 text-xs font-bold tracking-widest uppercase border-y border-amber-700/20"
+        speed={22}
+        separator="✦"
+      />
+
       {/* ── BODY ── */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative">
         {/* Ornamental divider */}
@@ -304,112 +315,91 @@ export function GoldenHourTemplate(props: InvitationProps) {
         </div>
 
         {/* Story */}
-        <Reveal>
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="relative">
-              <div
-                className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl"
-                style={{ border: "1px solid rgba(251,191,36,0.2)" }}
-              >
-                {gallery[1] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={gallery[1]} alt="Pasangan" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #78350f, #92400e)" }}>
-                    <span className="text-amber-400 text-8xl">✦</span>
-                  </div>
-                )}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <ClipReveal className="relative aspect-[3/4] rounded-2xl" style={{ border: "1px solid rgba(251,191,36,0.2)" }}>
+            {gallery[1] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={gallery[1]} alt="Pasangan" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #78350f, #92400e)" }}>
+                <span className="text-amber-400 text-8xl">✦</span>
               </div>
-              {/* Gold corner ornaments */}
-              <div className="absolute -top-2 -left-2 w-6 h-6 border-l-2 border-t-2 border-amber-400/50 rounded-tl" />
-              <div className="absolute -top-2 -right-2 w-6 h-6 border-r-2 border-t-2 border-amber-400/50 rounded-tr" />
-              <div className="absolute -bottom-2 -left-2 w-6 h-6 border-l-2 border-b-2 border-amber-400/50 rounded-bl" />
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 border-r-2 border-b-2 border-amber-400/50 rounded-br" />
-            </div>
+            )}
+          </ClipReveal>
 
-            <div className="space-y-6 text-center md:text-left">
-              <h2 className="text-amber-400" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>
-                Our Story
-              </h2>
-              <p className="text-amber-200/80 leading-relaxed">
-                {story || `Dengan penuh rasa syukur, kami mengundang ${guestName} untuk hadir dalam momen emas kehidupan kami.`}
-              </p>
-
-              <div className="space-y-3">
-                {[
-                  { icon: "location_on", label: "Venue", value: location, sub: venueAddress },
-                  { icon: "calendar_month", label: "Tanggal", value: dateStr, sub: timeStr },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center gap-4 p-4 rounded-xl"
-                    style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.15)" }}
-                  >
-                    <div className="flex size-10 items-center justify-center rounded-full flex-shrink-0" style={{ background: "rgba(251,191,36,0.15)" }}>
-                      <span className="material-symbols-outlined text-amber-400 text-xl">{item.icon}</span>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-amber-500 uppercase tracking-wide">{item.label}</p>
-                      <p className="text-sm font-bold text-amber-200">{item.value}</p>
-                      {item.sub && <p className="text-xs text-amber-500/70">{item.sub}</p>}
-                    </div>
+          <FloatIn className="space-y-6 text-center md:text-left" staggerDelay={0.12}>
+            <h2 className="text-amber-400" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>
+              Our Story
+            </h2>
+            <p className="text-amber-200/80 leading-relaxed">
+              {story || `Dengan penuh rasa syukur, kami mengundang ${guestName} untuk hadir dalam momen emas kehidupan kami.`}
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: "location_on", label: "Venue", value: location, sub: venueAddress },
+                { icon: "calendar_month", label: "Tanggal", value: dateStr, sub: timeStr },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-4 p-4 rounded-xl"
+                  style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.15)" }}
+                >
+                  <div className="flex size-10 items-center justify-center rounded-full flex-shrink-0" style={{ background: "rgba(251,191,36,0.15)" }}>
+                    <span className="material-symbols-outlined text-amber-400 text-xl">{item.icon}</span>
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <p className="text-xs font-bold text-amber-500 uppercase tracking-wide">{item.label}</p>
+                    <p className="text-sm font-bold text-amber-200">{item.value}</p>
+                    {item.sub && <p className="text-xs text-amber-500/70">{item.sub}</p>}
+                  </div>
+                </div>
+              ))}
             </div>
-          </section>
-        </Reveal>
+          </FloatIn>
+        </section>
 
         {/* Gallery */}
         {gallery.filter(Boolean).length > 0 && (
-          <Reveal>
-            <section>
-              <div className="text-center mb-10">
-                <h2 className="text-amber-400 mb-2" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>Galeri</h2>
-                <p className="text-amber-600 text-sm">✦ Momen berharga kami ✦</p>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {gallery.filter(Boolean).map((url, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.6 }}
-                    className={`overflow-hidden rounded-xl group relative ${i === 0 ? "col-span-2 aspect-video" : "aspect-square"}`}
-                    style={{ border: "1px solid rgba(251,191,36,0.15)" }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    {/* Gold shimmer overlay on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.1), transparent)" }} />
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-          </Reveal>
+          <section>
+            <FloatIn className="text-center mb-10">
+              <h2 className="text-amber-400 mb-2" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>Galeri</h2>
+              <p className="text-amber-600 text-sm">✦ Momen berharga kami ✦</p>
+            </FloatIn>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {gallery.filter(Boolean).map((url, i) => (
+                <ClipReveal
+                  key={i}
+                  className={`rounded-xl relative ${i === 0 ? "col-span-2 aspect-video" : "aspect-square"}`}
+                  style={{ border: "1px solid rgba(251,191,36,0.15)" }}
+                  delay={i * 0.08}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.1), transparent)" }} />
+                </ClipReveal>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Closing */}
-        <Reveal>
-          <div className="text-center py-12 space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(251,191,36,0.4))" }} />
-              <span className="text-amber-400">✦</span>
-              <div className="flex-1 h-px" style={{ background: "linear-gradient(to left, transparent, rgba(251,191,36,0.4))" }} />
-            </div>
-            <p className="text-amber-200 max-w-lg mx-auto leading-relaxed italic">
-              &ldquo;Kehadiran Anda menjadi cahaya emas yang melengkapi hari istimewa kami.&rdquo;
-            </p>
-            <button
-              onClick={() => setRsvpOpen(true)}
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-bold text-base text-amber-950 hover:-translate-y-1 transition-all duration-200"
-              style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)", boxShadow: "0 0 30px rgba(245,158,11,0.3)" }}
-            >
-              ✦ RSVP Sekarang
-            </button>
+        <FloatIn className="text-center py-12 space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(251,191,36,0.4))" }} />
+            <span className="text-amber-400">✦</span>
+            <div className="flex-1 h-px" style={{ background: "linear-gradient(to left, transparent, rgba(251,191,36,0.4))" }} />
           </div>
-        </Reveal>
+          <p className="text-amber-200 max-w-lg mx-auto leading-relaxed italic">
+            &ldquo;Kehadiran Anda menjadi cahaya emas yang melengkapi hari istimewa kami.&rdquo;
+          </p>
+          <button
+            onClick={() => setRsvpOpen(true)}
+            className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-bold text-base text-amber-950 hover:-translate-y-1 transition-all duration-200"
+            style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)", boxShadow: "0 0 30px rgba(245,158,11,0.3)" }}
+          >
+            ✦ RSVP Sekarang
+          </button>
+        </FloatIn>
       </main>
 
       <footer className="py-10 text-center relative" style={{ borderTop: "1px solid rgba(251,191,36,0.15)", background: "rgba(26,10,0,0.6)" }}>

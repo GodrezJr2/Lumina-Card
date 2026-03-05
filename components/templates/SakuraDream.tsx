@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
+import {
+  SplitText, FloatIn, ClipReveal, Marquee,
+  Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps,
+} from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -194,12 +197,12 @@ export function SakuraDreamTemplate(props: InvitationProps) {
             🌸 &nbsp; Wedding Invitation &nbsp; 🌸
           </motion.div>
 
-          {/* Big cursive name */}
+          {/* Big cursive name — SplitText reveal */}
           <h1
             className="text-5xl md:text-7xl font-bold text-rose-900 leading-tight"
             style={{ fontFamily: "'Great Vibes', cursive", letterSpacing: "0.02em" }}
           >
-            <CharReveal text={coupleNames || eventName} delay={0.5} />
+            <SplitText text={coupleNames || eventName} delay={0.5} staggerDelay={0.1} y={60} />
           </h1>
 
           {/* Japanese calligraphy decorative */}
@@ -267,6 +270,14 @@ export function SakuraDreamTemplate(props: InvitationProps) {
         </div>
       </section>
 
+      {/* ── MARQUEE ── */}
+      <Marquee
+        items={["桜の夢", "Sakura Dream", "Hari Bahagia", "Cinta Selamanya"]}
+        className="py-3 bg-rose-100 text-rose-400 text-sm font-bold tracking-widest border-y border-rose-200"
+        speed={22}
+        separator="🌸"
+      />
+
       {/* ── STORY ── */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-20 space-y-24 relative">
         {/* Divider */}
@@ -329,33 +340,28 @@ export function SakuraDreamTemplate(props: InvitationProps) {
 
         {/* Gallery */}
         {gallery.filter(Boolean).length > 0 && (
-          <Reveal>
-            <section>
-              <div className="text-center mb-10">
-                <h2 className="text-rose-800 mb-2" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>Galeri</h2>
-                <p className="text-rose-400 text-sm">Momen berharga kami 🌸</p>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {gallery.filter(Boolean).map((url, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className={`overflow-hidden rounded-2xl shadow-lg group ${i === 0 ? "col-span-2 aspect-video" : "aspect-square"}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`Foto ${i + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-          </Reveal>
+          <section>
+            <FloatIn className="text-center mb-10">
+              <h2 className="text-rose-800 mb-2" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "3rem" }}>Galeri</h2>
+              <p className="text-rose-400 text-sm">Momen berharga kami 🌸</p>
+            </FloatIn>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {gallery.filter(Boolean).map((url, i) => (
+                <ClipReveal
+                  key={i}
+                  className={`rounded-2xl shadow-lg ${i === 0 ? "col-span-2 aspect-video" : "aspect-square"}`}
+                  delay={i * 0.08}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={`Foto ${i + 1}`}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                  />
+                </ClipReveal>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Countdown-ish closing */}

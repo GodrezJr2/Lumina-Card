@@ -3,7 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { fadeUp, fadeIn, stagger, Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
+import {
+  stagger, fadeUp, fadeIn,
+  SplitText, FloatIn, ClipReveal, ParallaxDiv, Marquee,
+  RSVPModal, useSmoothScrollInit, type InvitationProps,
+} from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function EtherealGardenTemplate(props: InvitationProps) {
@@ -31,19 +35,23 @@ export function EtherealGardenTemplate(props: InvitationProps) {
 
       {/* ── HERO ── */}
       <div className="relative flex flex-col items-center justify-center min-h-[85vh] w-full px-4 overflow-hidden">
-        <motion.div
-          variants={fadeIn}
-          initial="hidden"
-          animate="show"
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: gallery[0]
-              ? `url('${gallery[0]}')`
-              : `url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80')`,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/90" />
-        </motion.div>
+        {/* Parallax background */}
+        <ParallaxDiv className="absolute inset-0 z-0" speedFactor={0.3}>
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate="show"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
+            style={{
+              backgroundImage: gallery[0]
+                ? `url('${gallery[0]}')`
+                : `url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&q=80')`,
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/85" />
+          </motion.div>
+        </ParallaxDiv>
+
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -53,9 +61,16 @@ export function EtherealGardenTemplate(props: InvitationProps) {
           <motion.span variants={fadeUp} className="inline-block py-1 px-3 rounded-full bg-emerald-500/10 text-emerald-600 text-xs font-bold uppercase tracking-widest">
             You Are Invited
           </motion.span>
-          <motion.h1 variants={fadeUp} className="text-6xl md:text-8xl font-bold italic text-slate-800 leading-tight drop-shadow-sm" style={{ fontFamily: "'Great Vibes', 'Georgia', cursive" }}>
-            {coupleNames || eventName}
-          </motion.h1>
+
+          {/* Split-word hero title */}
+          <h1 className="text-6xl md:text-8xl font-bold italic text-slate-800 leading-tight drop-shadow-sm" style={{ fontFamily: "'Great Vibes', 'Georgia', cursive" }}>
+            <SplitText
+              text={coupleNames || eventName}
+              staggerDelay={0.1}
+              y={70}
+            />
+          </h1>
+
           <motion.div variants={fadeUp}>
             <p className="text-xl font-light text-slate-700">{guestName}</p>
             <div className="flex items-center justify-center gap-4 mt-4 text-slate-600">
@@ -86,67 +101,68 @@ export function EtherealGardenTemplate(props: InvitationProps) {
         </motion.div>
       </div>
 
+      {/* ── MARQUEE DIVIDER ── */}
+      <Marquee
+        items={["Wedding Day", "Hari Pernikahan", "Love Story", "Kebahagiaan Kami"]}
+        className="py-4 bg-emerald-500 text-white text-sm font-bold tracking-widest uppercase"
+        speed={25}
+        separator="🌿"
+      />
+
       {/* ── DETAILS ── */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-16 space-y-20">
-        <Reveal>
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* ClipReveal on portrait photo */}
+          <ClipReveal className="aspect-[4/5] rounded-t-full rounded-b-xl shadow-2xl">
             {gallery[1] ? (
-              <div className="aspect-[4/5] rounded-t-full rounded-b-xl overflow-hidden shadow-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={gallery[1]} alt="Pasangan" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-              </div>
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={gallery[1]} alt="Pasangan" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             ) : (
-              <div className="aspect-[4/5] rounded-t-full rounded-b-xl overflow-hidden shadow-2xl bg-gradient-to-br from-emerald-100 to-green-200 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-green-200 flex items-center justify-center">
                 <span className="material-symbols-outlined text-8xl text-emerald-400">favorite</span>
               </div>
             )}
-            <div className="flex flex-col justify-center space-y-6 text-center md:text-left">
-              <span className="text-emerald-500 text-4xl md:text-5xl italic font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>Cerita Kami</span>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Undangan Spesial</h2>
-              <p className="text-slate-600 leading-relaxed">
-                {story || `Dengan segala kebahagiaan, kami mengundang ${guestName} untuk turut hadir merayakan momen istimewa kami.`}
-              </p>
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="bg-emerald-50 p-5 rounded-2xl">
-                  <span className="material-symbols-outlined text-3xl text-emerald-500 mb-2">location_on</span>
-                  <h3 className="font-bold text-sm mb-1">Venue</h3>
-                  <p className="text-xs text-slate-500">{location}</p>
-                  {venueAddress && <p className="text-xs text-slate-400 mt-1">{venueAddress}</p>}
-                </div>
-                <div className="bg-emerald-50 p-5 rounded-2xl">
-                  <span className="material-symbols-outlined text-3xl text-emerald-500 mb-2">calendar_month</span>
-                  <h3 className="font-bold text-sm mb-1">Tanggal</h3>
-                  <p className="text-xs text-slate-500">{dateStr}</p>
-                  <p className="text-xs text-slate-400 mt-1">{timeStr}</p>
-                </div>
+          </ClipReveal>
+
+          {/* FloatIn on text blocks */}
+          <FloatIn className="flex flex-col justify-center space-y-6 text-center md:text-left" staggerDelay={0.12}>
+            <span className="text-emerald-500 text-4xl md:text-5xl italic font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>Cerita Kami</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Undangan Spesial</h2>
+            <p className="text-slate-600 leading-relaxed">
+              {story || `Dengan segala kebahagiaan, kami mengundang ${guestName} untuk turut hadir merayakan momen istimewa kami.`}
+            </p>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="bg-emerald-50 p-5 rounded-2xl">
+                <span className="material-symbols-outlined text-3xl text-emerald-500 mb-2">location_on</span>
+                <h3 className="font-bold text-sm mb-1">Venue</h3>
+                <p className="text-xs text-slate-500">{location}</p>
+                {venueAddress && <p className="text-xs text-slate-400 mt-1">{venueAddress}</p>}
+              </div>
+              <div className="bg-emerald-50 p-5 rounded-2xl">
+                <span className="material-symbols-outlined text-3xl text-emerald-500 mb-2">calendar_month</span>
+                <h3 className="font-bold text-sm mb-1">Tanggal</h3>
+                <p className="text-xs text-slate-500">{dateStr}</p>
+                <p className="text-xs text-slate-400 mt-1">{timeStr}</p>
               </div>
             </div>
-          </section>
-        </Reveal>
+          </FloatIn>
+        </section>
 
         {gallery.filter(Boolean).length > 0 && (
-          <Reveal>
-            <section>
-              <div className="text-center mb-8">
-                <h2 className="text-5xl italic font-bold text-emerald-500" style={{ fontFamily: "'Great Vibes', cursive" }}>Galeri</h2>
-                <p className="text-slate-500 mt-2">Momen-momen berharga kami</p>
-              </div>
-              <motion.div
-                variants={stagger}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-60px" }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-4"
-              >
-                {gallery.filter(Boolean).map((url, i) => (
-                  <motion.div key={i} variants={fadeUp} className="aspect-[3/4] rounded-2xl overflow-hidden shadow-md group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </section>
-          </Reveal>
+          <section>
+            <FloatIn className="text-center mb-8">
+              <h2 className="text-5xl italic font-bold text-emerald-500" style={{ fontFamily: "'Great Vibes', cursive" }}>Galeri</h2>
+              <p className="text-slate-500 mt-2">Momen-momen berharga kami</p>
+            </FloatIn>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {gallery.filter(Boolean).map((url, i) => (
+                <ClipReveal key={i} className="aspect-[3/4] rounded-2xl shadow-md" delay={i * 0.08}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+                </ClipReveal>
+              ))}
+            </div>
+          </section>
         )}
       </main>
 

@@ -2,7 +2,10 @@
 
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
+import {
+  SplitText, FloatIn, ClipReveal, Marquee,
+  Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps,
+} from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function NeonNexusTemplate(props: InvitationProps) {
@@ -92,12 +95,12 @@ export function NeonNexusTemplate(props: InvitationProps) {
           >
             <span className="text-xs font-semibold uppercase tracking-wider text-[#ecc813]">{eventName}</span>
           </motion.div>
-          <motion.h1
-            variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.7 } } }}
-            className="text-6xl md:text-8xl font-black leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#ecc813] via-yellow-200 to-[#ecc813] drop-shadow-[0_0_30px_rgba(236,200,19,0.25)]"
-          >
-            {coupleNames}
-          </motion.h1>
+
+          {/* Split-word hero title */}
+          <h1 className="text-6xl md:text-8xl font-black leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#ecc813] via-yellow-200 to-[#ecc813] drop-shadow-[0_0_30px_rgba(236,200,19,0.25)]">
+            <SplitText text={coupleNames} staggerDelay={0.08} y={70} delay={0.3} />
+          </h1>
+
           <motion.p
             variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.7 } } }}
             className="text-xl md:text-2xl font-light leading-relaxed text-slate-300 max-w-2xl"
@@ -136,13 +139,21 @@ export function NeonNexusTemplate(props: InvitationProps) {
         </motion.div>
       </section>
 
+      {/* ── MARQUEE ── */}
+      <Marquee
+        items={["Tech Invite", "Infinity Loop", "Execute Love", "System Online"]}
+        className="py-3 bg-[#ecc813]/10 text-[#ecc813]/80 text-xs font-bold tracking-widest uppercase border-y border-[#ecc813]/20"
+        speed={20}
+        separator="◈"
+      />
+
       {/* ── Timeline ── */}
       <section id="timeline" className="py-24 px-4 relative">
         <div className="max-w-3xl mx-auto">
-          <Reveal className="text-center mb-16">
+          <FloatIn className="text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight text-white mb-4">Event Timeline</h2>
             <p className="text-slate-400">The sequence of our celebration.</p>
-          </Reveal>
+          </FloatIn>
           <div className="relative">
             <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#ecc813]/10 via-[#ecc813]/50 to-[#ecc813]/10 -translate-x-1/2 rounded-full shadow-[0_0_10px_rgba(236,200,19,0.5)]" />
             <div className="space-y-12">

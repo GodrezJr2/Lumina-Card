@@ -3,7 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { fadeUp, stagger, Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps } from "./shared";
+import {
+  fadeUp, stagger,
+  SplitText, FloatIn, ClipReveal, Marquee,
+  Reveal, RSVPModal, useSmoothScrollInit, type InvitationProps,
+} from "./shared";
 import MusicPlayer from "../MusicPlayer";
 
 export function ModernCorporateTemplate(props: InvitationProps) {
@@ -42,9 +46,10 @@ export function ModernCorporateTemplate(props: InvitationProps) {
               <span className="size-2 rounded-full bg-indigo-500 animate-pulse" />
               Undangan Resmi
             </motion.div>
-            <motion.h1 variants={fadeUp} className="text-4xl font-black leading-tight tracking-tighter text-slate-900 md:text-5xl lg:text-6xl">
-              {coupleNames || eventName}
-            </motion.h1>
+            {/* Split-word hero title */}
+            <h1 className="text-4xl font-black leading-tight tracking-tighter text-slate-900 md:text-5xl lg:text-6xl">
+              <SplitText text={coupleNames || eventName} staggerDelay={0.07} y={50} delay={0.2} />
+            </h1>
             <motion.p variants={fadeUp} className="text-lg leading-relaxed text-slate-600">
               {story || `Dengan hormat, kami mengundang ${guestName} untuk hadir pada acara spesial kami.`}
             </motion.p>
@@ -64,57 +69,52 @@ export function ModernCorporateTemplate(props: InvitationProps) {
               </Link>
             </motion.div>
           </motion.div>
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ delay: 0.3 }}
-            className="relative lg:w-1/2"
-          >
-            <div className="aspect-video w-full overflow-hidden rounded-2xl bg-slate-100 shadow-2xl">
-              {gallery[0] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={gallery[0]} alt="Event" className="h-full w-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-blue-200 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-8xl text-indigo-400">event</span>
-                </div>
-              )}
-            </div>
+          {/* ClipReveal on hero image */}
+          <ClipReveal className="relative lg:w-1/2 aspect-video rounded-2xl shadow-2xl">
+            {gallery[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={gallery[0]} alt="Event" className="h-full w-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-blue-200 flex items-center justify-center">
+                <span className="material-symbols-outlined text-8xl text-indigo-400">event</span>
+              </div>
+            )}
             <div className="absolute -bottom-4 -right-4 -z-10 h-full w-full rounded-2xl border-2 border-dashed border-indigo-200" />
-          </motion.div>
+          </ClipReveal>
         </div>
       </section>
 
+      {/* ── MARQUEE ── */}
+      <Marquee
+        items={["Wedding Day", "RSVP Now", "Hari Pernikahan", "Undangan Resmi"]}
+        className="py-3 bg-indigo-50 text-indigo-400 text-xs font-bold tracking-widest uppercase border-y border-indigo-100"
+        speed={22}
+        separator="◆"
+      />
+
       {/* ── EVENT DETAILS ── */}
-      <Reveal>
-        <section className="border-y border-slate-100 bg-slate-50/50 px-6 py-12 md:px-10">
-          <div className="max-w-5xl mx-auto grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-8">Rundown Acara</h2>
-              <motion.div
-                variants={stagger}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true }}
-                className="relative border-l-2 border-slate-200 pl-8 space-y-8"
-              >
-                {[
-                  { icon: "login", label: "Registrasi Tamu", desc: "Check-in dan penyambutan tamu undangan", time: timeStr },
-                  { icon: "celebration", label: "Acara Utama", desc: `${coupleNames || eventName}`, time: "" },
-                  { icon: "restaurant", label: "Resepsi & Makan", desc: "Makan bersama dan sesi foto", time: "" },
-                ].map((item, i) => (
-                  <motion.div key={i} variants={fadeUp} className="relative">
-                    <div className={`absolute -left-[41px] flex size-6 items-center justify-center rounded-full ${i === 0 ? "bg-indigo-600 text-white" : "bg-white border-2 border-slate-300 text-slate-400"} ring-4 ring-white`}>
-                      <span className="material-symbols-outlined text-[14px]">{item.icon}</span>
-                    </div>
-                    <span className={`text-sm font-bold ${i === 0 ? "text-indigo-600" : "text-slate-400"}`}>{item.time}</span>
-                    <h3 className="text-lg font-bold text-slate-900">{item.label}</h3>
-                    <p className="text-sm text-slate-500">{item.desc}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
+      <section className="border-y border-slate-100 bg-slate-50/50 px-6 py-12 md:px-10">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
+          <FloatIn staggerDelay={0.12}>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8">Rundown Acara</h2>
+            <div className="relative border-l-2 border-slate-200 pl-8 space-y-8">
+              {[
+                { icon: "login", label: "Registrasi Tamu", desc: "Check-in dan penyambutan tamu undangan", time: timeStr },
+                { icon: "celebration", label: "Acara Utama", desc: `${coupleNames || eventName}`, time: "" },
+                { icon: "restaurant", label: "Resepsi & Makan", desc: "Makan bersama dan sesi foto", time: "" },
+              ].map((item, i) => (
+                <div key={i} className="relative">
+                  <div className={`absolute -left-[41px] flex size-6 items-center justify-center rounded-full ${i === 0 ? "bg-indigo-600 text-white" : "bg-white border-2 border-slate-300 text-slate-400"} ring-4 ring-white`}>
+                    <span className="material-symbols-outlined text-[14px]">{item.icon}</span>
+                  </div>
+                  <span className={`text-sm font-bold ${i === 0 ? "text-indigo-600" : "text-slate-400"}`}>{item.time}</span>
+                  <h3 className="text-lg font-bold text-slate-900">{item.label}</h3>
+                  <p className="text-sm text-slate-500">{item.desc}</p>
+                </div>
+              ))}
             </div>
+          </FloatIn>
+          <Reveal>
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-8">Lokasi</h2>
               <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-lg">
@@ -138,30 +138,24 @@ export function ModernCorporateTemplate(props: InvitationProps) {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </Reveal>
+          </Reveal>
+        </div>
+      </section>
 
       {gallery.filter(Boolean).length > 0 && (
-        <Reveal>
-          <section className="max-w-5xl mx-auto px-6 py-12">
-            <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">Galeri</h2>
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-60px" }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4"
-            >
-              {gallery.filter(Boolean).map((url, i) => (
-                <motion.div key={i} variants={fadeUp} className="aspect-video rounded-xl overflow-hidden group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                </motion.div>
-              ))}
-            </motion.div>
-          </section>
-        </Reveal>
+        <section className="max-w-5xl mx-auto px-6 py-12">
+          <FloatIn className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-slate-900">Galeri</h2>
+          </FloatIn>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {gallery.filter(Boolean).map((url, i) => (
+              <ClipReveal key={i} className="aspect-video rounded-xl" delay={i * 0.07}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+              </ClipReveal>
+            ))}
+          </div>
+        </section>
       )}
 
       <footer className="border-t border-slate-100 bg-white py-10">
@@ -188,3 +182,4 @@ export function ModernCorporateTemplate(props: InvitationProps) {
     </div>
   );
 }
+
