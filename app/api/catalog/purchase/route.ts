@@ -25,10 +25,18 @@ const CATALOG_TO_EDITOR: Record<string, string> = {
  * POST /api/catalog/purchase
  * Body: { templateId, templateTitle, processingMethod }
  *
- * Logic:
- * - Update role → DIY_CLIENT & lock template
- * - Auto-create event jika user belum punya event (template-only buyer)
- * - Return eventId agar frontend bisa redirect langsung ke template editor
+ * ── Multi-template support ────────────────────────────────────────────────
+ * - purchasedTemplates (JSON array) menyimpan SEMUA template yang pernah dibeli
+ * - lockedTemplateId = template TERAKHIR dibeli (backward compat UI)
+ * - Setiap pembelian template SELALU buat Event baru — satu event per template
+ * - FULL_SERVICE_CLIENT & SUPER_ADMIN: tidak di-lock tapi tetap dapat event baru
+ * - Idempotent: jika user sudah punya event dengan templateId yang sama, kembalikan
+ *   eventId yang sudah ada (tidak duplikat event)
+ *
+ * ── Processing methods ────────────────────────────────────────────────────
+ * - self    : user isi sendiri
+ * - regular : tim kru isi dalam 1–2 hari
+ * - express : tim kru isi dalam 12 jam
  */
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +47,9 @@ export async function POST(req: NextRequest) {
     const id = parseInt(userId);
     if (isNaN(id)) return NextResponse.json({ error: "User tidak valid." }, { status: 400 });
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) return NextResponse.json({ error: "Request body tidak valid." }, { status: 400 });
+
     const { templateId, templateTitle, processingMethod = "self" } = body;
     if (!templateId || !templateTitle)
       return NextResponse.json({ error: "templateId dan templateTitle wajib diisi." }, { status: 400 });
@@ -47,9 +57,9 @@ export async function POST(req: NextRequest) {
     const user = await userModel.findUnique({ where: { id } });
     if (!user) return NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 });
 
-    const freeRole = user.role === "FULL_SERVICE_CLIENT" || user.role === "SUPER_ADMIN";
+    const isFreeAccess = user.role === "FULL_SERVICE_CLIENT" || user.role === "SUPER_ADMIN";
 
-    // Update purchase history
+    // ── Update purchasedTemplates JSON array ──────────────────────────────
     let purchased: string[] = [];
     try { purchased = JSON.parse(user.purchasedTemplates ?? "[]"); } catch { purchased = []; }
     if (!purchased.includes(templateId)) purchased.push(templateId);
@@ -57,31 +67,36 @@ export async function POST(req: NextRequest) {
     const updateData: Record<string, unknown> = {
       purchasedTemplates: JSON.stringify(purchased),
     };
-    if (!freeRole) {
+    // Untuk non-free user: tandai template terakhir & upgrade role jika perlu
+    if (!isFreeAccess) {
       updateData.lockedTemplateId = templateId;
       if (user.role === "BASIC_USER") updateData.role = "DIY_CLIENT";
     }
 
     await userModel.update({ where: { id }, data: updateData });
 
-    // ── Auto-create event jika user belum punya event ──────────────────────
+    // ── Cari atau buat Event untuk template ini (per-template event) ───────
+    // Idempotent: cek dulu apakah sudah ada event dengan templateId yang sama
     let eventId: number | null = null;
-    const existingEvents = await prisma.event.findMany({
-      where: { userId: id },
+
+    const existingEventForTemplate = await (prisma as any).event.findFirst({
+      where: { userId: id, templateId: templateId },
       select: { id: true },
-      take: 1,
     });
 
-    if (existingEvents.length === 0) {
-      // Buat event default dengan nama template sebagai placeholder
+    if (existingEventForTemplate) {
+      // Sudah ada event untuk template ini → pakai yang lama
+      eventId = existingEventForTemplate.id;
+    } else {
+      // Buat event BARU untuk template ini (berlaku untuk semua role, termasuk FULL_SERVICE_CLIENT)
       const editorTemplateId = CATALOG_TO_EDITOR[templateId] ?? "ethereal";
       const defaultDate = new Date();
-      defaultDate.setDate(defaultDate.getDate() + 30); // 30 hari ke depan sebagai default
+      defaultDate.setDate(defaultDate.getDate() + 30);
 
       const newEvent = await prisma.event.create({
         data: {
           userId:     id,
-          name:       templateTitle, // nama event = nama template, bisa diubah nanti
+          name:       templateTitle,
           date:       defaultDate,
           location:   "Belum diisi",
           template:   editorTemplateId,
@@ -90,36 +105,34 @@ export async function POST(req: NextRequest) {
         select: { id: true },
       });
       eventId = newEvent.id;
-    } else {
-      eventId = existingEvents[0].id;
     }
-    // ──────────────────────────────────────────────────────────────────────
 
     const orderId = "EI-TPL-" + Date.now().toString(36).toUpperCase();
-    const newRole = !freeRole && user.role === "BASIC_USER" ? "DIY_CLIENT" : user.role;
+    const newRole = !isFreeAccess && user.role === "BASIC_USER" ? "DIY_CLIENT" : user.role;
 
     const response = NextResponse.json({
       success: true,
       orderId,
-      locked: !freeRole,
-      lockedTemplateId: !freeRole ? templateId : null,
+      locked: !isFreeAccess,
+      lockedTemplateId: !isFreeAccess ? templateId : null,
+      purchasedTemplates: purchased,
       role: newRole,
       processingMethod,
-      eventId, // ← dikirim ke frontend untuk redirect langsung
+      eventId,
     });
 
-    if (!freeRole && user.role === "BASIC_USER") {
+    if (!isFreeAccess && user.role === "BASIC_USER") {
       response.cookies.set("user_role", "DIY_CLIENT", {
         httpOnly: true, path: "/", maxAge: 60 * 60 * 24 * 7,
       });
     }
-    response.cookies.set("locked_template", !freeRole ? templateId : "", {
+    response.cookies.set("locked_template", !isFreeAccess ? templateId : "", {
       httpOnly: true, path: "/", maxAge: 60 * 60 * 24 * 365,
     });
 
     return response;
   } catch (err) {
-    console.error("Catalog purchase error:", err);
+    console.error("[catalog/purchase] error:", err);
     return NextResponse.json({ error: "Terjadi kesalahan server." }, { status: 500 });
   }
 }
@@ -137,7 +150,7 @@ export async function GET() {
     const id = parseInt(userId);
     const user = await userModel.findUnique({
       where: { id },
-      select: { lockedTemplateId: true, purchasedTemplates: true, role: true },
+      select: { lockedTemplateId: true, purchasedTemplates: true, role: true, servicePlan: true },
     });
 
     if (!user) return NextResponse.json({ lockedTemplateId: null, purchased: [], freeAccess: false });
@@ -145,11 +158,14 @@ export async function GET() {
     let purchased: string[] = [];
     try { purchased = JSON.parse(user.purchasedTemplates ?? "[]"); } catch { purchased = []; }
 
+    const freeAccess = user.role === "FULL_SERVICE_CLIENT" || user.role === "SUPER_ADMIN";
+
     return NextResponse.json({
       lockedTemplateId: user.lockedTemplateId ?? null,
       purchased,
-      role: user.role,
-      freeAccess: user.role === "FULL_SERVICE_CLIENT" || user.role === "SUPER_ADMIN",
+      role:        user.role,
+      servicePlan: user.servicePlan ?? null,
+      freeAccess,
     });
   } catch {
     return NextResponse.json({ lockedTemplateId: null, purchased: [], freeAccess: false });

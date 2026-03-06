@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -64,24 +64,73 @@ function CheckoutContent() {
   const tax = Math.round(subtotal * 0.11);
   const total = subtotal + platformFee + tax;
 
+  // Load Midtrans Snap.js (sandbox atau production, idempotent)
+  useEffect(() => {
+    const isProd = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true";
+    const snapUrl = isProd
+      ? "https://app.midtrans.com/snap/snap.js"
+      : "https://app.sandbox.midtrans.com/snap/snap.js";
+    if (document.querySelector(`script[src="${snapUrl}"]`)) return;
+    const script = document.createElement("script");
+    script.src = snapUrl;
+    script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? "");
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   async function handlePay() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/payment/confirm", {
+      // Buat transaksi Midtrans
+      const res = await fetch("/api/payment/midtrans/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planName }),
+        body: JSON.stringify({
+          type: "pricing",
+          plan: planName.toLowerCase(),
+          amount: total,
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Pembayaran gagal.");
-      // Redirect to success page with order info
-      const params = new URLSearchParams({
-        plan: planName,
-        total: formatRp(total),
-        orderId: data.orderId,
+      if (!res.ok) throw new Error(data.error || "Gagal membuat transaksi.");
+
+      // Buka Midtrans Snap popup
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const snapWindow = window as any;
+      if (!snapWindow.snap) throw new Error("Midtrans Snap belum termuat, coba refresh halaman.");
+
+      snapWindow.snap.pay(data.snapToken, {
+        onSuccess: async (result: Record<string, string>) => {
+          console.log("[snap] success", result);
+          // Snap success → juga jalankan purchase logic langsung (fallback dari webhook)
+          try {
+            await fetch("/api/pricing/purchase", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ plan: planName.toLowerCase() }),
+            });
+          } catch { /* webhook sudah handle */ }
+
+          const params = new URLSearchParams({
+            plan: planName,
+            total: formatRp(total),
+            orderId: data.orderId,
+          });
+          router.push(`/pricing/success?${params.toString()}`);
+        },
+        onPending: (result: Record<string, string>) => {
+          console.log("[snap] pending", result);
+          setError("Pembayaran pending — selesaikan pembayaran di aplikasi bank / e-wallet kamu.");
+          setLoading(false);
+        },
+        onError: (result: Record<string, string>) => {
+          console.error("[snap] error", result);
+          setError("Pembayaran gagal. Coba lagi atau pilih metode lain.");
+          setLoading(false);
+        },
+        onClose: () => { setLoading(false); },
       });
-      router.push(`/pricing/success?${params.toString()}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
       setLoading(false);

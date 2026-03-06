@@ -1,8 +1,16 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
+// Declare Midtrans Snap global (injected via script tag)
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    snap: any;
+  }
+}
 
 // ─── Payment methods (same as /pricing/checkout) ────────────────────────────
 const PAYMENT_METHODS = [
@@ -104,6 +112,20 @@ function CatalogCheckoutContent() {
   const tax          = Math.round(subtotal * 0.11);
   const total        = subtotal + platformFee + tax;
 
+  // Load Midtrans Snap.js (sandbox atau production, idempotent)
+  useEffect(() => {
+    const isProd = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true";
+    const snapUrl = isProd
+      ? "https://app.midtrans.com/snap/snap.js"
+      : "https://app.sandbox.midtrans.com/snap/snap.js";
+    if (document.querySelector(`script[src="${snapUrl}"]`)) return;
+    const script = document.createElement("script");
+    script.src = snapUrl;
+    script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? "");
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   async function handlePay() {
     setError("");
     setLoading(true);
@@ -116,29 +138,62 @@ function CatalogCheckoutContent() {
         return;
       }
 
-      const res = await fetch("/api/catalog/purchase", {
+      // Buat transaksi Midtrans
+      const res = await fetch("/api/payment/midtrans/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          type: "template",
           templateId,
           templateTitle,
           processingMethod: selectedProcessing,
+          amount: total,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Pembelian gagal.");
+      if (!res.ok) throw new Error(data.error || "Gagal membuat transaksi.");
 
-      // Redirect to success page
-      const sp = new URLSearchParams({
-        templateId,
-        title: templateTitle,
-        total: formatRp(total),
-        orderId: data.orderId,
-        locked: String(data.locked),
-        processingMethod: selectedProcessing,
-        ...(data.eventId ? { eventId: String(data.eventId) } : {}),
+      // Buka Midtrans Snap popup
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const snapWindow = window as any;
+      if (!snapWindow.snap) throw new Error("Midtrans Snap belum termuat, coba refresh halaman.");
+
+      snapWindow.snap.pay(data.snapToken, {
+        onSuccess: async (result: Record<string, string>) => {
+          console.log("[snap] success", result);
+          // Snap success → juga jalankan purchase logic langsung (tidak perlu tunggu webhook)
+          try {
+            await fetch("/api/catalog/purchase", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ templateId, templateTitle, processingMethod: selectedProcessing }),
+            });
+          } catch { /* webhook sudah handle ini */ }
+
+          const sp = new URLSearchParams({
+            templateId,
+            title: templateTitle,
+            total: formatRp(total),
+            orderId: data.orderId,
+            locked: "true",
+            processingMethod: selectedProcessing,
+          });
+          router.push(`/catalog/success?${sp.toString()}`);
+        },
+        onPending: (result: Record<string, string>) => {
+          console.log("[snap] pending", result);
+          setError("Pembayaran pending — selesaikan pembayaran kamu di aplikasi bank / e-wallet.");
+          setLoading(false);
+        },
+        onError: (result: Record<string, string>) => {
+          console.error("[snap] error", result);
+          setError("Pembayaran gagal. Coba lagi atau pilih metode lain.");
+          setLoading(false);
+        },
+        onClose: () => {
+          setLoading(false);
+        },
       });
-      router.push(`/catalog/success?${sp.toString()}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
       setLoading(false);
