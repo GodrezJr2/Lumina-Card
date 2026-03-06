@@ -1,32 +1,54 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useRole } from "@/hooks/useRole";
 import { RoleBadge } from "@/components/RoleGate";
 import { can } from "@/lib/roles";
 
-const NAV = [
-  { href: "/admin/panel",     icon: "manage_accounts",  label: "All Events (Owner)", feature: "superAdmin" },
-  { href: "/admin/dashboard", icon: "dashboard",        label: "Overview",           feature: "dashboard" },
-  { href: "/admin/events",    icon: "event",            label: "Events",             feature: "events" },
-  { href: "/admin/guests",    icon: "group",            label: "Guest List",         feature: "guests" },
-  { href: "/admin/guests/add",icon: "person_add",       label: "Add Guest",          feature: "guests" },
-  { href: "/admin/broadcast", icon: "send",             label: "WA Sender",          feature: "broadcast" },
-  { href: "/admin/scanner",   icon: "qr_code_scanner",  label: "QR Scanner",         feature: "scanner" },
-  { href: "/admin/upgrade",   icon: "bolt",             label: "Upgrade Paket",      feature: "upgrade" },
+const NAV_ALL = [
+  { href: "/admin/panel",      icon: "manage_accounts",  label: "All Events (Owner)", feature: "superAdmin",  group: "admin" },
+  { href: "/admin/dashboard",  icon: "dashboard",        label: "Overview",           feature: "dashboard",   group: "common" },
+  { href: "/admin/events",     icon: "event",            label: "Events",             feature: "events",      group: "common" },
+  { href: "/admin/guests",     icon: "group",            label: "Guest List",         feature: "guests",      group: "service" },
+  { href: "/admin/guests/add", icon: "person_add",       label: "Add Guest",          feature: "guests",      group: "service" },
+  { href: "/admin/broadcast",  icon: "send",             label: "WA Sender",          feature: "broadcast",   group: "service" },
+  { href: "/admin/scanner",    icon: "qr_code_scanner",  label: "QR Scanner",         feature: "scanner",     group: "service" },
+  { href: "/admin/upgrade",    icon: "bolt",             label: "Upgrade Paket",      feature: "upgrade",     group: "common" },
 ] as const;
 
-/** Nav yang ditampilkan untuk template-only buyer */
+/** Nav untuk template-only (punya template, belum punya service plan) */
 const NAV_TEMPLATE_ONLY = [
-  { href: "/admin/events",  icon: "palette",    label: "Kustomisasi Template", feature: "events" },
-  { href: "/admin/upgrade", icon: "bolt",       label: "Upgrade Paket",        feature: "upgrade" },
+  { href: "/admin/dashboard",  icon: "dashboard",  label: "Dashboard",            feature: "dashboard", group: "common" },
+  { href: "/admin/events",     icon: "palette",    label: "Kustomisasi Template", feature: "events",    group: "common" },
+  { href: "/admin/upgrade",    icon: "bolt",       label: "Tambah Paket Absen",   feature: "upgrade",   group: "common" },
 ] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, role, isTemplateOnly } = useRole();
+  const { user, role, servicePlan, isTemplateOnly, hasTemplate, hasService } = useRole();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Hitung berapa checklist item yang belum selesai (untuk badge di sidebar dashboard)
+  useEffect(() => {
+    if (!isTemplateOnly) return;
+    fetch("/api/events")
+      .then((r) => r.json())
+      .then((data) => {
+        const ev = data.events?.[0];
+        if (!ev) { setPendingCount(5); return; }
+        let pending = 0;
+        if (!ev.coupleNames?.trim()) pending++;
+        if (!ev.date || new Date(ev.date) <= new Date(2000, 0, 1)) pending++;
+        if (!ev.venueAddress?.trim() || ev.venueAddress === "Belum diisi") pending++;
+        if (!ev.musicUrl?.trim()) pending++;   // opsional tapi tetap hitung
+        if (!ev.slugUrl) pending++;
+        setPendingCount(pending);
+      })
+      .catch(() => {});
+  }, [isTemplateOnly]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -38,10 +60,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  // Pilih nav sesuai tipe user
-  const visibleNav = isTemplateOnly
-    ? NAV_TEMPLATE_ONLY.filter(({ feature }) => !role || can(role, feature))
-    : NAV.filter(({ feature }) => !role || can(role, feature));
+  // Pilih nav sesuai kombinasi hasTemplate + hasService
+  const baseNav: { href: string; icon: string; label: string; feature: string; group: string }[] =
+    isTemplateOnly
+      ? (NAV_TEMPLATE_ONLY as unknown as { href: string; icon: string; label: string; feature: string; group: string }[])
+      : (NAV_ALL as unknown as { href: string; icon: string; label: string; feature: string; group: string }[]);
+
+  const visibleNav = baseNav.filter(({ feature }) => !role || can(role, feature as Parameters<typeof can>[1], servicePlan ?? null));
 
   return (
     <div className="flex min-h-screen bg-[#f8fbfc]">
@@ -58,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div>
               <p className="text-sm font-extrabold text-slate-900 leading-none group-hover:text-[#13c8ec] transition-colors">ElegantInvites</p>
               <p className="text-xs text-slate-400 mt-0.5">
-                {isTemplateOnly ? "Template Panel" : "Admin Panel"}
+                {isTemplateOnly ? "Template Panel" : hasService ? "Service Panel" : "Admin Panel"}
               </p>
             </div>
           </Link>
@@ -71,8 +96,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="material-symbols-outlined text-sm leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
               Template Only
             </p>
-            <p className="text-amber-600">Akses terbatas ke kustomisasi template.{" "}
-              <Link href="/admin/upgrade" className="font-bold underline">Upgrade</Link> untuk fitur lengkap.
+            <p className="text-amber-600">Punya template undangan.{" "}
+              <Link href="/admin/upgrade" className="font-bold underline">Tambah paket absen</Link> untuk fitur kelola tamu.
             </p>
           </div>
         )}
@@ -81,6 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex flex-col gap-0.5 p-3 flex-1">
           {visibleNav.map(({ href, icon, label }) => {
             const active = pathname === href || (href !== "/admin/guests" && pathname.startsWith(href + "/")) || (href === "/admin/guests" && pathname === "/admin/guests");
+            const showBadge = href === "/admin/dashboard" && isTemplateOnly && pendingCount > 0;
             return (
               <Link
                 key={href}
@@ -92,7 +118,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }`}
               >
                 <span className="material-symbols-outlined text-xl leading-none">{icon}</span>
-                {label}
+                <span className="flex-1">{label}</span>
+                {showBadge && (
+                  <span className="size-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -149,4 +180,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
-
+

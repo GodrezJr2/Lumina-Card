@@ -2,32 +2,18 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import PricingCTA from "@/components/PricingCTA";
-import { Role } from "@/lib/roles";
-
-/**
- * Tier numerik per role — sama persis dengan yang ada di API
- * Semakin tinggi angka = semakin tinggi paket
- */
-const ROLE_TIER: Record<Role, number> = {
-  BASIC_USER:           0,
-  DIY_CLIENT:           1,
-  FULL_SERVICE_CLIENT:  2,
-  USHER_STAFF:          0,
-  SUPER_ADMIN:         99,
-};
 
 const PLANS = [
   {
     name: "Basic",
+    slug: "basic",
     price: "Rp 299K",
     per: "/event",
-    desc: "Cocok untuk acara kecil dan intimate seperti arisan, gathering keluarga, atau pernikahan sederhana.",
+    desc: "Cocok untuk acara kecil dan intimate. Kelola tamu, QR scanner, WA blast hingga 200 tamu.",
     highlight: false,
     badge: null,
     cta: "Pilih Basic",
     ctaStyle: "border-2 border-navy text-navy font-bold hover:bg-navy hover:text-white",
-    /** Tier paket ini — harus sesuai dengan ROLE_TIER */
-    tier: 1, // DIY_CLIENT
     features: {
       devices: "1 Perangkat",
       guests: "200 Tamu",
@@ -40,6 +26,7 @@ const PLANS = [
   },
   {
     name: "Professional",
+    slug: "professional",
     price: "Rp 799K",
     per: "/event",
     desc: "Solusi terlengkap untuk pernikahan dan acara formal dengan skala menengah hingga besar.",
@@ -47,7 +34,6 @@ const PLANS = [
     badge: "Paling Populer",
     cta: "Pilih Professional",
     ctaStyle: "bg-gold text-white font-bold hover:bg-gold-hover shadow-lg shadow-gold/25",
-    tier: 2, // FULL_SERVICE_CLIENT
     features: {
       devices: "5 Perangkat",
       guests: "1.000 Tamu",
@@ -60,6 +46,7 @@ const PLANS = [
   },
   {
     name: "Enterprise",
+    slug: "enterprise",
     price: "Custom",
     per: "",
     desc: "Untuk event korporat berskala besar, gala dinner, atau konferensi dengan kebutuhan khusus.",
@@ -67,7 +54,6 @@ const PLANS = [
     badge: null,
     cta: "Hubungi Kami",
     ctaStyle: "bg-navy text-white font-bold hover:bg-navy-light shadow-md",
-    tier: 2, // sama dengan Professional untuk sekarang
     features: {
       devices: "Unlimited",
       guests: "Unlimited",
@@ -108,8 +94,8 @@ function Tick({ ok, label }: { ok?: boolean | string; label?: string }) {
 }
 
 export default async function PricingPage() {
-  // Fetch user dari DB via cookie — Server Component
-  let currentTier = -1; // -1 = belum login
+  // Fetch user dari DB — pakai servicePlan (bukan role) untuk cek paket absen aktif
+  let currentPlan: string | null = null;
   let userIsSuperAdmin = false;
 
   try {
@@ -118,10 +104,13 @@ export default async function PricingPage() {
     if (userId) {
       const id = parseInt(userId);
       if (!isNaN(id)) {
-        const user = await prisma.user.findUnique({ where: { id }, select: { role: true } });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user = await (prisma.user as any).findUnique({ where: { id }, select: { role: true, servicePlan: true } });
         if (user) {
           userIsSuperAdmin = user.role === "SUPER_ADMIN";
-          currentTier = ROLE_TIER[user.role as Role] ?? 0;
+          currentPlan = (user.servicePlan as string | null) ?? null;
+          // FULL_SERVICE_CLIENT yang dibuat manual admin → anggap punya professional
+          if (user.role === "FULL_SERVICE_CLIENT" && !currentPlan) currentPlan = "professional";
         }
       }
     }
@@ -129,15 +118,7 @@ export default async function PricingPage() {
     // Gagal fetch → treat as belum login
   }
 
-  // Pricing ini untuk layanan ABSEN (QR Scanner + Guest Management), BUKAN template.
-  // DIY_CLIENT = beli template → tier 1 dari katalog template, bukan paket absen.
-  // Jadi semua user kecuali FULL_SERVICE_CLIENT & SUPER_ADMIN harus lihat semua paket.
-  // Hanya FULL_SERVICE_CLIENT yang dianggap sudah punya paket Professional (tier 2).
-  const abosenTier = userIsSuperAdmin ? 99
-    : currentTier >= 2 ? 2   // FULL_SERVICE_CLIENT sudah punya Professional
-    : -1;                     // Semua lainnya (termasuk DIY_CLIENT) belum punya paket absen
-
-  const visiblePlans = userIsSuperAdmin ? PLANS : PLANS; // tampilkan semua selalu
+  const visiblePlans = PLANS; // selalu tampilkan semua paket
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light font-display text-text-main">
@@ -168,7 +149,7 @@ export default async function PricingPage() {
               Kamu adalah Super Admin — semua fitur sudah aktif
             </div>
           )}
-          {!userIsSuperAdmin && abosenTier >= 2 && (
+          {!userIsSuperAdmin && currentPlan === "professional" && (
             <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold text-sm font-semibold px-5 py-2.5 rounded-full">
               <span className="material-symbols-outlined text-base leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
               Paket Professional sudah aktif — kamu bisa upgrade ke Enterprise
@@ -213,8 +194,8 @@ export default async function PricingPage() {
                   label={plan.cta}
                   ctaStyle={plan.ctaStyle}
                   isEnterprise={plan.name === "Enterprise"}
-                  planTier={plan.tier}
-                  currentTier={abosenTier}
+                  planSlug={plan.slug}
+                  currentPlan={currentPlan}
                   isSuperAdmin={userIsSuperAdmin}
                 />
                 <ul className="space-y-3 mt-2">

@@ -39,6 +39,9 @@ model User {
   lockedTemplateId   String?
   /// JSON array of purchased templateIds (history)
   purchasedTemplates String?   @db.Text
+  /// Paket layanan absen yang dibeli: null | "basic" | "professional"
+  /// Terpisah dari role — user bisa punya template (lockedTemplateId) DAN paket absen
+  servicePlan        String?
   /// Soft delete — jika diisi, akun dianggap dihapus
   deletedAt          DateTime?
   /// Siapa yang menghapus (userId superAdmin)

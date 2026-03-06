@@ -182,4 +182,4 @@ export function ModernCorporateTemplate(props: InvitationProps) {
     </div>
   );
 }
-
+

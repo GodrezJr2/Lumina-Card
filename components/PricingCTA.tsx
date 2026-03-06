@@ -9,13 +9,15 @@ interface PricingCTAProps {
   label: string;
   ctaStyle: string;
   isEnterprise?: boolean;
-  /** Tier paket ini (0=basic, 1=professional, dst.) */
-  planTier: number;
-  /** Tier paket yang sedang aktif user (dari server). -1 = belum login */
-  currentTier: number;
+  /** "basic" | "professional" | "enterprise" */
+  planSlug: string;
+  /** servicePlan user saat ini dari server: null | "basic" | "professional" */
+  currentPlan: string | null;
   /** True jika user adalah SUPER_ADMIN */
   isSuperAdmin: boolean;
 }
+
+const PLAN_ORDER: Record<string, number> = { basic: 1, professional: 2, enterprise: 3 };
 
 export default function PricingCTA({
   planName,
@@ -23,14 +25,13 @@ export default function PricingCTA({
   label,
   ctaStyle,
   isEnterprise,
-  planTier,
-  currentTier,
+  planSlug,
+  currentPlan,
   isSuperAdmin,
 }: PricingCTAProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // SUPER_ADMIN tidak perlu beli apapun
   if (isSuperAdmin) {
     return (
       <div className="w-full text-center py-3.5 rounded-xl mb-6 text-sm bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold flex items-center justify-center gap-2 cursor-default select-none">
@@ -40,8 +41,8 @@ export default function PricingCTA({
     );
   }
 
-  // Paket ini sudah aktif (tier sama)
-  if (currentTier === planTier) {
+  // Paket ini sudah aktif
+  if (currentPlan === planSlug) {
     return (
       <div className="w-full text-center py-3.5 rounded-xl mb-6 text-sm bg-gold/10 border border-gold/30 text-gold font-bold flex items-center justify-center gap-2 cursor-default select-none">
         <span className="material-symbols-outlined text-base leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -50,9 +51,16 @@ export default function PricingCTA({
     );
   }
 
-  // Paket lebih rendah dari yang dimiliki → tidak ditampilkan (page sudah hide, tapi guard di sini juga)
-  if (currentTier > planTier && currentTier >= 0) {
-    return null;
+  // Paket lebih rendah dari yang dimiliki → tampilkan tapi disabled
+  const currentOrder = PLAN_ORDER[currentPlan ?? ""] ?? 0;
+  const planOrder = PLAN_ORDER[planSlug] ?? 0;
+  if (currentPlan && currentOrder >= planOrder) {
+    return (
+      <div className="w-full text-center py-3.5 rounded-xl mb-6 text-sm bg-slate-100 text-slate-400 font-semibold flex items-center justify-center gap-2 cursor-default select-none">
+        <span className="material-symbols-outlined text-base leading-none">check</span>
+        Sudah di-cover paket aktif
+      </div>
+    );
   }
 
   async function handleClick() {
@@ -60,14 +68,12 @@ export default function PricingCTA({
       router.push("/admin/login");
       return;
     }
-
     setLoading(true);
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
-
       if (data.user) {
-        const params = new URLSearchParams({ plan: planName, price });
+        const params = new URLSearchParams({ plan: planName, price, planSlug });
         router.push(`/pricing/checkout?${params.toString()}`);
       } else {
         router.push("/admin/login?redirect=/pricing");

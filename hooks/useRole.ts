@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Role } from "@/lib/roles";
+import type { Role, ServicePlan } from "@/lib/roles";
+import { hasTemplate, hasServicePlan, guestLimit } from "@/lib/roles";
 
 interface MeUser {
   id: number;
@@ -9,6 +10,7 @@ interface MeUser {
   name: string | null;
   role: Role;
   lockedTemplateId: string | null;
+  servicePlan: ServicePlan | null;
 }
 
 /** Hook untuk ambil user + role dari /api/auth/me */
@@ -23,12 +25,26 @@ export function useRole() {
       .finally(() => setLoading(false));
   }, []);
 
+  const role = user?.role ?? null;
+  const lockedTemplateId = user?.lockedTemplateId ?? null;
+  const servicePlan = (user?.servicePlan ?? null) as ServicePlan;
+
   return {
     user,
-    role: user?.role ?? null,
-    lockedTemplateId: user?.lockedTemplateId ?? null,
-    /** Template-only buyer: DIY_CLIENT yang membeli 1 template spesifik (bukan Full Service) */
-    isTemplateOnly: user?.role === "DIY_CLIENT" && !!user?.lockedTemplateId,
+    role,
+    lockedTemplateId,
+    servicePlan,
+    /** Apakah user punya template dari katalog */
+    hasTemplate: hasTemplate(lockedTemplateId),
+    /** Apakah user punya paket jasa absen (basic/professional) */
+    hasService: hasServicePlan(servicePlan),
+    /** Batas tamu sesuai servicePlan (0 jika tidak punya) */
+    guestLimit: guestLimit(servicePlan),
+    /**
+     * Template-only buyer: DIY_CLIENT yang punya lockedTemplateId tapi BELUM punya servicePlan.
+     * Mereka dapat dashboard onboarding, bukan dashboard normal.
+     */
+    isTemplateOnly: role === "DIY_CLIENT" && !!lockedTemplateId && !servicePlan,
     loading,
   };
 }
