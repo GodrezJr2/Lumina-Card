@@ -22,6 +22,19 @@ interface Stats {
   trendUpcoming: number | null;
 }
 
+interface TemplateClient {
+  user: { id: number; name: string | null; email: string; role: string; servicePlan: string | null; createdAt: string };
+  lockedTemplateId: string;
+  templateLabel: string;
+  event: {
+    id: number; name: string; date: string; location: string;
+    coupleNames: string | null; venueAddress: string | null; musicUrl: string | null; slugUrl: string | null;
+  } | null;
+  checklist: { coupleNames: boolean; date: boolean; venue: boolean; music: boolean; slug: boolean };
+  completedSteps: number;
+  totalSteps: number;
+}
+
 function getEventTag(name: string) {
   const lower = name.toLowerCase();
   if (lower.includes("wedding") || lower.includes("nikah") || lower.includes("pernikahan")) return "Wedding";
@@ -44,11 +57,18 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 export default function AdminPanelPage() {
+  const [tab, setTab] = useState<"events" | "templates">("events");
   const [events, setEvents] = useState<EventItem[]>([]);
   const [stats, setStats] = useState<Stats>({ totalActive: 0, guestsToday: 0, upcoming: 0, trendTotalActive: null, trendGuests: null, trendUpcoming: null });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
+
+  // Template clients state
+  const [clients, setClients] = useState<TemplateClient[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(true);
+  const [clientSearch, setClientSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "incomplete" | "done">("all");
 
   useEffect(() => {
     fetch("/api/admin/panel")
@@ -59,6 +79,11 @@ export default function AdminPanelPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    fetch("/api/admin/template-clients")
+      .then((r) => r.json())
+      .then((d) => { setClients(d.clients ?? []); setClientsLoading(false); })
+      .catch(() => setClientsLoading(false));
   }, []);
 
   const TYPE_FILTERS = ["All", "Wedding", "Corporate", "Birthday", "Anniversary"];
@@ -72,15 +97,36 @@ export default function AdminPanelPage() {
     return matchType && matchSearch;
   });
 
+  const filteredClients = clients.filter((c) => {
+    const name = (c.user.name ?? c.user.email).toLowerCase();
+    const matchSearch = name.includes(clientSearch.toLowerCase()) ||
+      c.templateLabel.toLowerCase().includes(clientSearch.toLowerCase()) ||
+      (c.event?.name ?? "").toLowerCase().includes(clientSearch.toLowerCase());
+    const isDone = c.completedSteps >= 4; // musik opsional, 4/5 = done
+    const matchStatus =
+      statusFilter === "all" ||
+      (statusFilter === "done" && isDone) ||
+      (statusFilter === "incomplete" && !isDone);
+    return matchSearch && matchStatus;
+  });
+
+  const pendingCount = clients.filter((c) => c.completedSteps < 4).length;
+
   return (
     <RoleGate feature="superAdmin">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
 
         {/* ── Page header ── */}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Semua Events</h1>
-            <p className="text-slate-500 text-sm mt-0.5">Monitor dan kelola seluruh undangan digital yang aktif di platform.</p>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              {tab === "events" ? "Semua Events" : "Template Clients"}
+            </h1>
+            <p className="text-slate-500 text-sm mt-0.5">
+              {tab === "events"
+                ? "Monitor dan kelola seluruh undangan digital yang aktif di platform."
+                : "Klien yang beli template — isi undangan mereka di sini."}
+            </p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Link
@@ -100,7 +146,45 @@ export default function AdminPanelPage() {
           </div>
         </div>
 
-        {/* ── Stats ── */}
+        {/* ── Tabs ── */}
+        <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+          <button
+            onClick={() => setTab("events")}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+              tab === "events" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-base leading-none">event</span>
+              Semua Events
+              <span className="ml-1 bg-slate-200 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                {events.length}
+              </span>
+            </span>
+          </button>
+          <button
+            onClick={() => setTab("templates")}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+              tab === "templates" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-base leading-none">palette</span>
+              Template Clients
+              <span className="ml-1 bg-slate-200 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                {clients.length}
+              </span>
+              {pendingCount > 0 && (
+                <span className="ml-0.5 bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {pendingCount} pending
+                </span>
+              )}
+            </span>
+          </button>
+        </div>
+
+        {/* ══ TAB: EVENTS ══════════════════════════════════════════════════════ */}
+        {tab === "events" && (<>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: "Total Active Events", value: stats.totalActive, icon: "event_available", color: "text-emerald-600", bg: "bg-emerald-50", trend: stats.trendTotalActive },
@@ -270,6 +354,186 @@ export default function AdminPanelPage() {
             )}
           </div>
         )}
+        </>)}
+
+        {/* ══ TAB: TEMPLATE CLIENTS ══════════════════════════════════════════ */}
+        {tab === "templates" && (
+          <div className="flex flex-col gap-5">
+
+            {/* Search + filter */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[18px]">search</span>
+                <input
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  className="w-full py-2.5 pl-10 pr-4 text-sm bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm"
+                  placeholder="Cari nama klien atau template…"
+                />
+              </div>
+              <div className="flex gap-2">
+                {(["all", "incomplete", "done"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setStatusFilter(s)}
+                    className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap ${
+                      statusFilter === s
+                        ? "bg-primary text-slate-900 shadow-sm"
+                        : "bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    {s === "all" ? "Semua" : s === "incomplete" ? "⏳ Belum Lengkap" : "✅ Sudah Lengkap"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Cards */}
+            {clientsLoading ? (
+              <div className="flex items-center justify-center py-20 text-slate-400">
+                <span className="material-symbols-outlined animate-spin mr-2">refresh</span>
+                Memuat data klien…
+              </div>
+            ) : filteredClients.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <span className="material-symbols-outlined text-5xl mb-3 text-slate-200">palette</span>
+                <p className="text-sm font-medium">Tidak ada klien template ditemukan.</p>
+                <p className="text-xs mt-1 text-slate-300">
+                  {clients.length === 0 ? "Belum ada yang beli template." : "Coba ubah filter."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {filteredClients.map((c) => {
+                  const isDone = c.completedSteps >= 4;
+                  const clientName = c.user.name ?? c.user.email;
+                  const initials = clientName.slice(0, 2).toUpperCase();
+                  const checkItems = [
+                    { key: "coupleNames", label: "Nama Pasangan",   done: c.checklist.coupleNames },
+                    { key: "date",        label: "Tanggal Event",   done: c.checklist.date },
+                    { key: "venue",       label: "Alamat Venue",    done: c.checklist.venue },
+                    { key: "music",       label: "Musik (opsional)",done: c.checklist.music },
+                    { key: "slug",        label: "Link Aktif",      done: c.checklist.slug },
+                  ];
+
+                  return (
+                    <div
+                      key={c.user.id}
+                      className="flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/30 transition-all"
+                    >
+                      {/* Top accent + status */}
+                      <div className={`h-1.5 rounded-t-2xl ${isDone ? "bg-emerald-400" : "bg-amber-400"}`} />
+
+                      <div className="p-5 flex flex-col gap-4 flex-1">
+                        {/* Client info */}
+                        <div className="flex items-start gap-3">
+                          <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-900 truncate">{clientName}</p>
+                            <p className="text-xs text-slate-400 truncate">{c.user.email}</p>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+                                {c.templateLabel}
+                              </span>
+                              {c.user.servicePlan && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-200">
+                                  +Absen {c.user.servicePlan}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {/* Progress badge */}
+                          <span className={`text-xs font-bold px-2 py-1 rounded-full shrink-0 ${
+                            isDone ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                          }`}>
+                            {c.completedSteps}/{c.totalSteps}
+                          </span>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="space-y-1.5">
+                          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${isDone ? "bg-emerald-400" : "bg-amber-400"}`}
+                              style={{ width: `${(c.completedSteps / c.totalSteps) * 100}%` }}
+                            />
+                          </div>
+                          {/* Checklist items */}
+                          <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                            {checkItems.map((item) => (
+                              <div key={item.key} className="flex items-center gap-1">
+                                <span className={`text-[13px] leading-none ${item.done ? "text-emerald-500" : "text-slate-300"}`}>
+                                  {item.done ? "✓" : "○"}
+                                </span>
+                                <span className={`text-[11px] ${item.done ? "text-slate-500 line-through" : "text-slate-600"}`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Event info */}
+                        {c.event && (
+                          <div className="bg-slate-50 rounded-xl px-3 py-2 text-xs text-slate-500 space-y-0.5">
+                            <p className="font-semibold text-slate-700 truncate">{c.event.name}</p>
+                            <p>{new Date(c.event.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</p>
+                            {c.event.slugUrl && (
+                              <p className="text-[#13c8ec] truncate">/i/{c.event.slugUrl}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex gap-2 mt-auto">
+                          {c.event ? (
+                            <>
+                              <Link
+                                href={`/admin/events/${c.event.id}/template`}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-primary hover:bg-yellow-400 text-slate-900 text-xs font-bold transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-[16px] leading-none">edit</span>
+                                Isi Template
+                              </Link>
+                              <Link
+                                href={`/admin/guests?eventId=${c.event.id}`}
+                                className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-500 text-xs hover:border-primary hover:text-primary transition-colors flex items-center"
+                                title="Kelola Tamu"
+                              >
+                                <span className="material-symbols-outlined text-[16px] leading-none">group</span>
+                              </Link>
+                              {c.event.slugUrl && (
+                                <a
+                                  href={`/i/${c.event.slugUrl}`}
+                                  target="_blank"
+                                  className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-500 text-xs hover:border-[#13c8ec] hover:text-[#13c8ec] transition-colors flex items-center"
+                                  title="Lihat Undangan"
+                                >
+                                  <span className="material-symbols-outlined text-[16px] leading-none">open_in_new</span>
+                                </a>
+                              )}
+                            </>
+                          ) : (
+                            <Link
+                              href={`/admin/events?userId=${c.user.id}`}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[16px] leading-none">add</span>
+                              Buat Event untuk Klien Ini
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </RoleGate>
   );
