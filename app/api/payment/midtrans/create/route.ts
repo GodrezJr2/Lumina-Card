@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Snap transaction parameter ────────────────────────────────────────
+    const isProduction = process.env.MIDTRANS_IS_PRODUCTION === "true";
     const parameter = {
       transaction_details: {
         order_id: orderId,
@@ -96,9 +97,25 @@ export async function POST(req: NextRequest) {
         first_name: user.name ?? "User",
       },
       credit_card: { secure: true },
+      // Di Sandbox: batasi ke metode yang didukung simulator Midtrans
+      // BCA VA → simulator BCA VA, BNI VA → simulator BNI VA, dst
+      // GoPay paling mudah disimulasikan via deeplink simulator
+      ...(!isProduction && {
+        enabled_payments: [
+          "gopay",
+          "shopeepay",
+          "other_qris",
+          "bca_va",
+          "bni_va",
+          "bri_va",
+          "permata_va",
+          "cimb_va",
+          "danamon_va",
+        ],
+      }),
       callbacks: {
-        finish: `${process.env.NEXTAUTH_URL}/catalog/success?orderId=${orderId}`,
-        error:  `${process.env.NEXTAUTH_URL}/catalog/checkout?error=payment_failed`,
+        finish:  `${process.env.NEXTAUTH_URL}/catalog/success?orderId=${orderId}`,
+        error:   `${process.env.NEXTAUTH_URL}/catalog/checkout?error=payment_failed`,
         pending: `${process.env.NEXTAUTH_URL}/catalog/checkout?pending=1`,
       },
       // Simpan metadata purchase di custom_field untuk dipakai webhook

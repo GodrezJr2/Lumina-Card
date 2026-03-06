@@ -45,11 +45,18 @@ function SuccessContent() {
             <span className="material-symbols-outlined text-amber-500 shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
             <div>
               <p className="font-bold mb-1">Cara simulasi pembayaran (Sandbox):</p>
-              <ol className="list-decimal list-inside space-y-1 text-xs">
+              <ol className="list-decimal list-inside space-y-1 text-xs leading-relaxed">
                 <li>Buka <a href="https://simulator.sandbox.midtrans.com" target="_blank" rel="noreferrer" className="underline font-semibold">simulator.sandbox.midtrans.com</a></li>
-                <li>Pilih bank sesuai VA yang muncul di popup tadi</li>
-                <li>Paste nomor VA → klik <strong>Inquire</strong> → klik <strong>Pay</strong></li>
-                <li>Paket akan aktif dalam beberapa detik</li>
+                <li>Pilih metode di sidebar sesuai yang kamu pilih di popup:<br/>
+                  <span className="ml-3 block mt-0.5 text-amber-700">
+                    • <strong>GoPay</strong> → Deeplink (openAPI &amp; non openAPI)<br/>
+                    • <strong>BCA VA</strong> → Virtual Account → BCA VA<br/>
+                    • <strong>BNI VA</strong> → Virtual Account → BNI VA<br/>
+                    • <strong>BRI VA</strong> → Virtual Account → BRI VA<br/>
+                    • <strong>QRIS</strong> → QRIS (openAPI &amp; non openAPI)
+                  </span>
+                </li>
+                <li>Masukkan <strong>VA number</strong> (untuk VA) atau <strong>Order ID</strong> (untuk GoPay/QRIS) → klik <strong>Inquire</strong> → klik <strong>Pay</strong></li>
               </ol>
             </div>
           </div>
