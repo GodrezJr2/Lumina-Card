@@ -63,13 +63,15 @@ export default function NavbarWrapper() {
 
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          <div className="size-8 rounded-lg bg-navy flex items-center justify-center shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Lumina Card" className="h-8 w-auto" onError={(e) => { const t = e.target as HTMLImageElement; t.style.display="none"; t.nextElementSibling?.classList.remove("hidden"); }} />
+          <div className="size-8 rounded-lg bg-navy hidden items-center justify-center shadow-sm">
             <span className="material-symbols-outlined text-gold text-xl leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>
               celebration
             </span>
           </div>
           <span className="text-lg font-extrabold tracking-tight text-navy group-hover:text-navy-light transition-colors">
-            ElegantInvites
+            Lumina Card
           </span>
         </Link>
 

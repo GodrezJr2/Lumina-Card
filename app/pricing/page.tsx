@@ -328,9 +328,9 @@ export default async function PricingPage() {
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-secondary">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-gold">celebration</span>
-            <span className="font-bold text-navy">ElegantInvites</span>
+            <span className="font-bold text-navy">Lumina Card</span>
           </div>
-          <p>© 2026 ElegantInvites Inc. All rights reserved.</p>
+          <p>© 2026 Lumina Card. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/" className="hover:text-navy transition-colors">Beranda</Link>
             <Link href="/catalog" className="hover:text-navy transition-colors">Template</Link>

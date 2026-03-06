@@ -271,7 +271,7 @@ export default function HomePage() {
             Siap membuat event yang tak terlupakan?
           </h2>
           <p className="text-slate-300 mb-10 text-lg leading-relaxed max-w-xl mx-auto">
-            Bergabung bersama ribuan penyelenggara event yang sudah menggunakan ElegantInvites untuk check-in yang mulus dan undangan yang memukau.
+            Bergabung bersama ribuan penyelenggara event yang sudah menggunakan Lumina Card untuk check-in yang mulus dan undangan yang memukau.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -297,7 +297,7 @@ export default function HomePage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-5">
                 <span className="material-symbols-outlined text-gold text-2xl">celebration</span>
-                <span className="font-bold text-lg text-navy">ElegantInvites</span>
+                <span className="font-bold text-lg text-navy">Lumina Card</span>
               </div>
               <p className="text-sm text-text-secondary leading-relaxed">
                 Platform manajemen tamu &amp; undangan digital terbaik untuk pernikahan dan acara profesional di Indonesia.
@@ -345,7 +345,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="pt-8 border-t border-navy/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-secondary">
-            <p>© 2026 ElegantInvites Inc. All rights reserved.</p>
+            <p>© 2026 Lumina Card. All rights reserved.</p>
             <div className="flex gap-5">
               <a href="#" className="hover:text-gold transition-colors">
                 <span className="material-symbols-outlined text-xl">public</span>

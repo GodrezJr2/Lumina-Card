@@ -4,8 +4,8 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 export const metadata: Metadata = {
-  title: "ElegantInvites – Wedding Guest Management",
-  description: "Manage your wedding guests with elegance",
+  title: "Lumina Card – Online Invitations",
+  description: "Buat undangan pernikahan digital yang elegan dengan Lumina Card",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

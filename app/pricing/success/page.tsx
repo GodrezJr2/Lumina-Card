@@ -76,7 +76,7 @@ function SuccessContent() {
         <div className="bg-navy px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 text-white">
             <span className="material-symbols-outlined text-gold text-xl">celebration</span>
-            <span className="font-bold">ElegantInvites</span>
+            <span className="font-bold">Lumina Card</span>
           </div>
           <span className={`text-xs font-bold px-3 py-1.5 rounded-full tracking-wide uppercase ${
             isPending

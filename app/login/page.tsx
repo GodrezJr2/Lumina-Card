@@ -81,11 +81,9 @@ export default function LoginPage() {
             </svg>
           </div>
           <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#ffeba7" }}>
-            ElegantInvites
+            Lumina Card
           </span>
         </div>
-
-        {/* Toggle label */}
         <div className="mb-1 flex items-center gap-0" style={{ fontFamily: "Poppins, sans-serif" }}>
           <span
             className="text-xs font-bold uppercase px-5 tracking-widest cursor-pointer transition-all"

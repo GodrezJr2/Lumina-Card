@@ -81,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </svg>
             </div>
             <div>
-              <p className="text-sm font-extrabold text-slate-900 leading-none group-hover:text-[#13c8ec] transition-colors">ElegantInvites</p>
+              <p className="text-sm font-extrabold text-slate-900 leading-none group-hover:text-[#13c8ec] transition-colors">Lumina Card</p>
               <p className="text-xs text-slate-400 mt-0.5">
                 {isTemplateOnly ? "Template Panel" : hasService ? "Service Panel" : "Admin Panel"}
               </p>
@@ -157,7 +157,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen overflow-hidden">
         {/* Mobile top bar */}
         <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
-          <Link href="/" className="font-bold text-sm text-slate-800">ElegantInvites</Link>
+          <Link href="/" className="font-bold text-sm text-slate-800">Lumina Card</Link>
           <div className="flex gap-1">
             {visibleNav.map(({ href, icon }) => (
               <Link

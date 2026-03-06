@@ -12,39 +12,6 @@ declare global {
   }
 }
 
-// ─── Payment methods (same as /pricing/checkout) ────────────────────────────
-const PAYMENT_METHODS = [
-  {
-    id: "va",
-    label: "Virtual Account",
-    desc: "Konfirmasi instan via BNI, Mandiri, atau BCA.",
-    badges: [
-      { color: "bg-blue-600", title: "BCA" },
-      { color: "bg-blue-400", title: "Mandiri" },
-      { color: "bg-orange-500", title: "BNI" },
-    ],
-  },
-  {
-    id: "cc",
-    label: "Kartu Kredit / Debit",
-    desc: "Pembayaran aman via Visa atau Mastercard.",
-    badges: [
-      { color: "bg-slate-800", title: "Visa" },
-      { color: "bg-red-600", title: "Mastercard" },
-    ],
-  },
-  {
-    id: "ewallet",
-    label: "E-Wallet / QRIS",
-    desc: "Scan QR via OVO, Dana, GoPay, atau ShopeePay.",
-    badges: [
-      { color: "bg-purple-600", title: "OVO" },
-      { color: "bg-blue-500", title: "Dana" },
-      { color: "bg-red-500", title: "QRIS" },
-    ],
-  },
-];
-
 // ─── Processing methods (dari template menucheckout.html) ────────────────────
 const PROCESSING_METHODS = [
   {
@@ -100,7 +67,6 @@ function CatalogCheckoutContent() {
   const templateImg   = params.get("img") || "";
   const templateCat   = params.get("category") || "Wedding";
 
-  const [selectedPayment,    setSelectedPayment]    = useState("va");
   const [selectedProcessing, setSelectedProcessing] = useState("self");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -264,7 +230,7 @@ function CatalogCheckoutContent() {
 
             {/* ── Metode Pembayaran ── */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-navy/10">
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-navy flex items-center gap-2">
                   <span className="material-symbols-outlined text-gold" style={{ fontVariationSettings: "'FILL' 1" }}>credit_card</span>
                   Metode Pembayaran
@@ -274,59 +240,21 @@ function CatalogCheckoutContent() {
                   SSL Secure
                 </div>
               </div>
-              <div className="flex flex-col gap-3">
-                {PAYMENT_METHODS.map((method) => (
-                  <label key={method.id} className="cursor-pointer">
-                    <input
-                      type="radio" name="payment_method" value={method.id}
-                      checked={selectedPayment === method.id}
-                      onChange={() => setSelectedPayment(method.id)}
-                      className="sr-only"
-                    />
-                    <div className={`flex items-center gap-4 rounded-xl border p-5 transition-all ${
-                      selectedPayment === method.id
-                        ? "border-navy bg-navy/5 shadow-md"
-                        : "border-navy/15 bg-white hover:border-navy/30"
-                    }`}>
-                      <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        selectedPayment === method.id ? "border-navy bg-navy" : "border-slate-300"
-                      }`}>
-                        {selectedPayment === method.id && <div className="size-2 rounded-full bg-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="font-bold text-navy">{method.label}</span>
-                          <div className="flex gap-1.5">
-                            {method.badges.map((b) => (
-                              <div key={b.title} title={b.title}
-                                className={`h-5 w-8 rounded-sm ${b.color} opacity-80`} />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-text-secondary">{method.desc}</p>
-                      </div>
-                    </div>
-                    {/* CC form */}
-                    {method.id === "cc" && selectedPayment === "cc" && (
-                      <div className="mt-3 ml-9 grid grid-cols-2 gap-4">
-                        <div className="col-span-2">
-                          <label className="block text-xs font-semibold text-text-secondary mb-1">Nomor Kartu</label>
-                          <input type="text" placeholder="0000 0000 0000 0000"
-                            className="w-full rounded-xl border border-navy/20 bg-background-light px-4 py-2.5 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-text-secondary mb-1">Masa Berlaku</label>
-                          <input type="text" placeholder="MM/YY"
-                            className="w-full rounded-xl border border-navy/20 bg-background-light px-4 py-2.5 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-text-secondary mb-1">CVC</label>
-                          <input type="text" placeholder="123"
-                            className="w-full rounded-xl border border-navy/20 bg-background-light px-4 py-2.5 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10" />
-                        </div>
-                      </div>
-                    )}
-                  </label>
+              <div className="bg-navy/[0.03] rounded-xl p-4 flex gap-3 text-sm text-text-secondary leading-relaxed">
+                <span className="material-symbols-outlined text-navy/40 shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
+                <p>Pilih metode pembayaran (VA, GoPay, QRIS, dll) langsung di <strong className="text-navy">popup yang muncul setelah klik Bayar</strong>.</p>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-text-secondary">Tersedia:</span>
+                {[
+                  { bg: "bg-blue-600",    label: "BCA" },
+                  { bg: "bg-orange-500",  label: "BNI" },
+                  { bg: "bg-blue-800",    label: "BRI" },
+                  { bg: "bg-red-500",     label: "QRIS" },
+                  { bg: "bg-emerald-500", label: "GoPay" },
+                  { bg: "bg-orange-600",  label: "ShopeePay" },
+                ].map((p) => (
+                  <span key={p.label} className={`${p.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded`}>{p.label}</span>
                 ))}
               </div>
             </div>
@@ -485,9 +413,9 @@ function CatalogCheckoutContent() {
             <div className="size-6 rounded bg-navy flex items-center justify-center">
               <span className="material-symbols-outlined text-gold text-sm leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
             </div>
-            <span className="font-bold text-navy">ElegantInvites</span>
+            <span className="font-bold text-navy">Lumina Card</span>
           </div>
-          <p>© 2026 ElegantInvites Inc. All rights reserved.</p>
+          <p>© 2026 Lumina Card. All rights reserved.</p>
         </div>
       </footer>
     </div>

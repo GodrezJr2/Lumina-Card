@@ -281,7 +281,7 @@ export default function DashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Overview</h1>
-          <p className="text-sm text-slate-500 mt-1">Selamat datang di panel admin ElegantInvites.</p>
+          <p className="text-sm text-slate-500 mt-1">Selamat datang di panel admin Lumina Card.</p>
         </div>
         <Link
           href="/admin/events"

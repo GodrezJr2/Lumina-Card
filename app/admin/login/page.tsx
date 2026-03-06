@@ -86,7 +86,7 @@ function AdminLoginContent() {
             </svg>
           </div>
           <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#ffeba7", fontFamily: "Poppins, sans-serif" }}>
-            ElegantInvites
+            Lumina Card
           </span>
         </div>
 
