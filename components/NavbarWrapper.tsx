@@ -63,12 +63,25 @@ export default function NavbarWrapper() {
 
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.jpeg" alt="Lumina Card" className="h-10 w-auto object-contain" onError={(e) => { const t = e.target as HTMLImageElement; t.style.display="none"; t.nextElementSibling?.classList.remove("hidden"); }} />
-          <div className="size-8 rounded-lg bg-navy hidden items-center justify-center shadow-sm">
-            <span className="material-symbols-outlined text-gold text-xl leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>
-              celebration
-            </span>
+          {/* Lumina Card logo — SVG inline (no background issue) */}
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {/* Envelope body */}
+            <rect x="4" y="11" width="28" height="19" rx="2.5" stroke="#C9A96E" strokeWidth="1.6" fill="none"/>
+            {/* Envelope flap open V */}
+            <path d="M4 13.5L18 22L32 13.5" stroke="#C9A96E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* Leaf sprig bottom-right */}
+            <path d="M25 26 Q28 24 29 21" stroke="#C9A96E" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+            <path d="M27 24.5 Q29.5 23.5 29 21" stroke="#C9A96E" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+            {/* 4-pointed star above envelope */}
+            <path d="M18 4 L19.1 7.9 L23 9 L19.1 10.1 L18 14 L16.9 10.1 L13 9 L16.9 7.9 Z" fill="#C9A96E"/>
+            {/* Star glow rays */}
+            <line x1="18" y1="2" x2="18" y2="4" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            <line x1="23.5" y1="4.5" x2="22.1" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            <line x1="12.5" y1="4.5" x2="13.9" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+          </svg>
+          <div className="flex flex-col leading-none">
+            <span className="text-[15px] font-black tracking-widest text-navy uppercase group-hover:text-navy-light transition-colors" style={{ letterSpacing: "0.12em" }}>Lumina Card</span>
+            <span className="text-[8px] font-semibold tracking-[0.2em] text-gold uppercase mt-0.5">Online Invitations</span>
           </div>
         </Link>
 
