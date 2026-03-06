@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { RoleGate } from "@/components/RoleGate";
+import { SyncButton } from "@/components/SyncButton";
 
 interface ScanResult {
   token: string;
@@ -23,6 +24,21 @@ export default function ScannerPage() {
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef<{ clear: () => Promise<void> } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Event selector — untuk fitur sync
+  const [events, setEvents] = useState<{ id: number; name: string }[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/events")
+      .then((r) => r.json())
+      .then((d) => {
+        const evs = (d.events ?? []) as { id: number; name: string }[];
+        setEvents(evs);
+        if (evs.length > 0) setSelectedEventId(evs[0].id);
+      })
+      .catch(() => {});
+  }, []);
 
   const isSecureCtx = typeof window !== "undefined" ? window.isSecureContext : false;
 
@@ -152,9 +168,27 @@ export default function ScannerPage() {
   return (
     <RoleGate feature="scanner">
     <div className="space-y-6 max-w-xl">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">QR Scanner</h1>
-        <p className="text-sm text-slate-500 mt-1">Check-in tamu dengan scan QR Code tiket mereka.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">QR Scanner</h1>
+          <p className="text-sm text-slate-500 mt-1">Check-in tamu dengan scan QR Code tiket mereka.</p>
+        </div>
+
+        {/* ── Sync ke Server ─────────────────────────────────────────── */}
+        <div className="flex flex-col gap-2 items-end">
+          {events.length > 1 && (
+            <select
+              value={selectedEventId ?? ""}
+              onChange={(e) => setSelectedEventId(Number(e.target.value))}
+              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            >
+              {events.map((ev) => (
+                <option key={ev.id} value={ev.id}>{ev.name}</option>
+              ))}
+            </select>
+          )}
+          {selectedEventId && <SyncButton eventId={selectedEventId} />}
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
