@@ -107,8 +107,7 @@ function CheckoutContent() {
         <div className="max-w-[900px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Lumina Card" className="h-8 w-auto" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <span className="font-black text-navy text-lg tracking-tight">Lumina Card</span>
+            <img src="/logo.jpeg" alt="Lumina Card" className="h-10 w-auto object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
           </Link>
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <Link href="/pricing" className="hover:text-navy transition-colors">Pricing</Link>
@@ -151,7 +150,7 @@ function CheckoutContent() {
               </ul>
             </div>
 
-            {/* Payment info â€” no selector, Midtrans handles it */}
+            {/* Payment info — no selector, Midtrans handles it */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-navy/10">
               <h2 className="text-xl font-bold text-navy mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-gold" style={{ fontVariationSettings: "'FILL' 1" }}>credit_card</span>
@@ -233,7 +232,7 @@ function CheckoutContent() {
                   ) : (
                     <>
                       <span className="material-symbols-outlined text-xl leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
-                      Bayar Sekarang â€” {formatRp(total)}
+                      Bayar Sekarang — {formatRp(total)}
                     </>
                   )}
                 </button>
