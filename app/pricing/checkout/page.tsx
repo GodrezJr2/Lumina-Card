@@ -103,7 +103,7 @@ function CheckoutContent() {
       snapWindow.snap.pay(data.snapToken, {
         onSuccess: async (result: Record<string, string>) => {
           console.log("[snap] success", result);
-          // Snap success → juga jalankan purchase logic langsung (fallback dari webhook)
+          // Jalankan purchase logic langsung (double-confirm, webhook juga handle ini)
           try {
             await fetch("/api/pricing/purchase", {
               method: "POST",
@@ -115,21 +115,32 @@ function CheckoutContent() {
           const params = new URLSearchParams({
             plan: planName,
             total: formatRp(total),
-            orderId: data.orderId,
+            orderId: result.order_id ?? data.orderId,
           });
           router.push(`/pricing/success?${params.toString()}`);
         },
         onPending: (result: Record<string, string>) => {
           console.log("[snap] pending", result);
-          setError("Pembayaran pending — selesaikan pembayaran di aplikasi bank / e-wallet kamu.");
-          setLoading(false);
+          // VA / e-wallet: pending = user sudah dapat nomor VA, pembayaran belum selesai
+          // Redirect ke success dengan status pending supaya user tau cara bayarnya
+          const params = new URLSearchParams({
+            plan: planName,
+            total: formatRp(total),
+            orderId: result.order_id ?? data.orderId,
+            status: "pending",
+          });
+          router.push(`/pricing/success?${params.toString()}`);
         },
         onError: (result: Record<string, string>) => {
           console.error("[snap] error", result);
-          setError("Pembayaran gagal. Coba lagi atau pilih metode lain.");
+          setError(result?.status_message ?? "Pembayaran gagal. Coba lagi atau pilih metode lain.");
           setLoading(false);
         },
-        onClose: () => { setLoading(false); },
+        onClose: () => {
+          // User tutup popup tanpa bayar
+          setError("Popup ditutup. Klik Bayar untuk mencoba lagi.");
+          setLoading(false);
+        },
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan.");
