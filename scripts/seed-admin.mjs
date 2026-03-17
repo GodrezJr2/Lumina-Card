@@ -3,25 +3,53 @@ import bcryptjs from "bcryptjs";
 
 const p = new PrismaClient();
 
-const password = "Admin@1234"; // Ganti sesuai keinginan
+const users = [
+  {
+    email: "admin@luminacard.app",
+    name: "Super Admin",
+    password: "superadmin123",
+    role: "SUPER_ADMIN",
+  },
+  {
+    email: "dummy1@luminacard.app",
+    name: "Dummy User 1",
+    password: "dummy",
+    role: "DIY_CLIENT",
+  },
+  {
+    email: "dummy2@luminacard.app",
+    name: "Dummy User 2",
+    password: "dummy",
+    role: "FULL_SERVICE_CLIENT",
+  },
+];
 
 try {
-  // Hash password dengan bcryptjs
-  const hashedPassword = await bcryptjs.hash(password, 10);
+  console.log("🌱 Seeding users...\n");
 
-  const admin = await p.user.upsert({
-    where: { email: "admin@luminacard.app" },
-    update: {},
-    create: {
-      email: "admin@luminacard.app",
-      name: "Super Admin",
-      password: hashedPassword,
-      role: "SUPER_ADMIN",
-    },
-  });
-  console.log("✅ SuperAdmin created:", admin.email, "| role:", admin.role);
-  console.log("   Password (plain):", password);
-  console.log("   Password (hash bcrypt):", hashedPassword.substring(0, 40) + "...");
+  for (const user of users) {
+    // Hash password dengan bcryptjs
+    const hashedPassword = await bcryptjs.hash(user.password, 10);
+
+    const createdUser = await p.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        email: user.email,
+        name: user.name,
+        password: hashedPassword,
+        role: user.role,
+      },
+    });
+
+    console.log(`✅ User created:`, createdUser.email);
+    console.log(`   Name: ${createdUser.name}`);
+    console.log(`   Role: ${createdUser.role}`);
+    console.log(`   Password (plain): ${user.password}`);
+    console.log(`   Password (hash): ${hashedPassword.substring(0, 40)}...\n`);
+  }
+
+  console.log("✨ All users seeded successfully!");
 } catch (e) {
   console.error("❌ Error:", e.message);
 } finally {
