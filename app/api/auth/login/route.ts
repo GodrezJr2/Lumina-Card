@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { createHash } from "crypto";
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
+import bcryptjs from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +15,13 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || user.password !== hashPassword(password)) {
+    if (!user) {
+      return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
+    }
+
+    // Compare password dengan bcrypt
+    const passwordMatch = await bcryptjs.compare(password, user.password);
+    if (!passwordMatch) {
       return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
     }
 

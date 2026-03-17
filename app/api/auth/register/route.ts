@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { createHash } from "crypto";
+import bcryptjs from "bcryptjs";
 import { Role } from "@prisma/client";
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
 
 export async function POST(req: NextRequest) {
   const { name, email, password } = await req.json();
@@ -23,11 +19,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 });
   }
 
+  // Hash password dengan bcryptjs (salt rounds: 10)
+  const hashedPassword = await bcryptjs.hash(password, 10);
+
   const user = await prisma.user.create({
     data: {
       name,
       email,
-      password: hashPassword(password),
+      password: hashedPassword,
       role: "BASIC_USER" as Role,
     },
   });
