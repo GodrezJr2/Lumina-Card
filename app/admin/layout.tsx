@@ -75,16 +75,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="size-9 text-[#13c8ec] group-hover:text-[#0fb3d4] transition-colors">
-              <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-extrabold text-slate-900 leading-none group-hover:text-[#13c8ec] transition-colors">Lumina Card</p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {isTemplateOnly ? "Template Panel" : hasService ? "Service Panel" : "Admin Panel"}
-              </p>
+            <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="4" y="11" width="28" height="19" rx="2.5" stroke="#C9A96E" strokeWidth="1.6" fill="none"/>
+              <path d="M4 13.5L18 22L32 13.5" stroke="#C9A96E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M25 26 Q28 24 29 21" stroke="#C9A96E" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+              <path d="M27 24.5 Q29.5 23.5 29 21" stroke="#C9A96E" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+              <path d="M18 4 L19.1 7.9 L23 9 L19.1 10.1 L18 14 L16.9 10.1 L13 9 L16.9 7.9 Z" fill="#C9A96E"/>
+              <line x1="18" y1="2" x2="18" y2="4" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+              <line x1="23.5" y1="4.5" x2="22.1" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+              <line x1="12.5" y1="4.5" x2="13.9" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            </svg>
+            <div className="flex flex-col leading-none">
+              <p className="text-[13px] font-black tracking-wider text-navy uppercase group-hover:text-navy-light transition-colors" style={{ letterSpacing: "0.12em" }}>Lumina Card</p>
+              <p className="text-[7px] font-semibold tracking-[0.2em] text-gold uppercase mt-0.5">Online Invitations</p>
             </div>
           </Link>
         </div>
@@ -157,7 +160,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen overflow-hidden">
         {/* Mobile top bar */}
         <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
-          <Link href="/" className="font-bold text-sm text-slate-800">Lumina Card</Link>
+          <Link href="/" className="flex items-center gap-2">
+            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="4" y="11" width="28" height="19" rx="2.5" stroke="#C9A96E" strokeWidth="1.6" fill="none"/>
+              <path d="M4 13.5L18 22L32 13.5" stroke="#C9A96E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M25 26 Q28 24 29 21" stroke="#C9A96E" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+              <path d="M27 24.5 Q29.5 23.5 29 21" stroke="#C9A96E" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+              <path d="M18 4 L19.1 7.9 L23 9 L19.1 10.1 L18 14 L16.9 10.1 L13 9 L16.9 7.9 Z" fill="#C9A96E"/>
+              <line x1="18" y1="2" x2="18" y2="4" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+              <line x1="23.5" y1="4.5" x2="22.1" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+              <line x1="12.5" y1="4.5" x2="13.9" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            </svg>
+            <span className="font-black text-xs text-navy uppercase tracking-wider">Lumina Card</span>
+          </Link>
           <div className="flex gap-1">
             {visibleNav.map(({ href, icon }) => (
               <Link

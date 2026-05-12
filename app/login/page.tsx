@@ -75,12 +75,17 @@ export default function LoginPage() {
       <div className="w-full flex flex-col items-center">
         {/* Brand */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="size-9 text-[#ffeba7]">
-            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" />
-            </svg>
-          </div>
-          <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#ffeba7" }}>
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="4" y="11" width="28" height="19" rx="2.5" stroke="#C9A96E" strokeWidth="1.6" fill="none"/>
+            <path d="M4 13.5L18 22L32 13.5" stroke="#C9A96E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M25 26 Q28 24 29 21" stroke="#C9A96E" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+            <path d="M27 24.5 Q29.5 23.5 29 21" stroke="#C9A96E" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+            <path d="M18 4 L19.1 7.9 L23 9 L19.1 10.1 L18 14 L16.9 10.1 L13 9 L16.9 7.9 Z" fill="#C9A96E"/>
+            <line x1="18" y1="2" x2="18" y2="4" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            <line x1="23.5" y1="4.5" x2="22.1" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            <line x1="12.5" y1="4.5" x2="13.9" y2="5.9" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+          </svg>
+          <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#C9A96E" }}>
             Lumina Card
           </span>
         </div>
