@@ -64,6 +64,30 @@ export default function MusicPlayer({ musicUrl, accentColor = "#10b981", dark = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [musicUrl]);
 
+  // Autoplay on first user gesture (browser policy workaround)
+  useEffect(() => {
+    if (!musicUrl || playing) return;
+    const trigger = () => {
+      if (isYoutube) {
+        setPlaying(true);
+      } else if (audioRef.current) {
+        audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
+      }
+      cleanup();
+    };
+    const cleanup = () => {
+      window.removeEventListener("pointerdown", trigger);
+      window.removeEventListener("keydown", trigger);
+      window.removeEventListener("touchstart", trigger);
+      window.removeEventListener("scroll", trigger);
+    };
+    window.addEventListener("pointerdown", trigger, { once: true });
+    window.addEventListener("keydown", trigger, { once: true });
+    window.addEventListener("touchstart", trigger, { once: true });
+    window.addEventListener("scroll", trigger, { once: true });
+    return cleanup;
+  }, [musicUrl, isYoutube, playing]);
+
   const togglePlay = useCallback(() => {
     if (!audioRef.current && !isYoutube) return;
     if (isYoutube) {
