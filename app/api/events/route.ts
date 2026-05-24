@@ -26,14 +26,15 @@ export async function GET() {
 
     const allGuests = await prisma.guest.findMany({
       where:  { event: { userId } },
-      select: { status: true },
+      select: { status: true, attendance: { select: { pickedUpSouvenir: true } } },
     });
 
     const stats = {
-      totalGuests: allGuests.length,
-      checkedIn:   allGuests.filter((g: { status: string }) => g.status === "Checked_In").length,
-      opened:      allGuests.filter((g: { status: string }) => g.status === "Opened").length,
-      draft:       allGuests.filter((g: { status: string }) => g.status === "Draft").length,
+      totalGuests:    allGuests.length,
+      checkedIn:      allGuests.filter((g) => g.status === "Checked_In").length,
+      opened:         allGuests.filter((g) => g.status === "Opened").length,
+      draft:          allGuests.filter((g) => g.status === "Draft").length,
+      souvenirsTaken: allGuests.filter((g) => g.attendance?.pickedUpSouvenir).length,
     };
 
     return NextResponse.json({ events, stats });

@@ -10,12 +10,15 @@ interface ScanResult {
   status: string;
   message: string;
   success: boolean;
+  mode?: ScanMode;
 }
 
 type Mode = "upload" | "manual" | "camera";
+type ScanMode = "checkin" | "souvenir";
 
 export default function ScannerPage() {
   const [mode, setMode] = useState<Mode>("upload");
+  const [scanMode, setScanMode] = useState<ScanMode>("checkin");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
   const [lastToken, setLastToken] = useState("");
@@ -77,19 +80,20 @@ export default function ScannerPage() {
       const r = await fetch("/api/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, mode: scanMode }),
       });
       const d = await r.json();
       setResult({
         token,
         name: d.name ?? "",
         status: d.status ?? "Unknown",
-        message: d.message ?? (r.ok ? "Check-in berhasil!" : d.error ?? "Gagal check-in."),
+        message: d.message ?? (r.ok ? (scanMode === "souvenir" ? "Souvenir berhasil diberikan!" : "Check-in berhasil!") : d.error ?? "Gagal."),
         success: r.ok,
+        mode: scanMode,
       });
       playBeep(r.ok);
     } catch {
-      setResult({ token, name: "", status: "Error", message: "Gagal terhubung ke server.", success: false });
+      setResult({ token, name: "", status: "Error", message: "Gagal terhubung ke server.", success: false, mode: scanMode });
       playBeep(false);
     }
 
@@ -190,6 +194,37 @@ export default function ScannerPage() {
           {selectedEventId && <SyncButton eventId={selectedEventId} />}
         </div>
       </div>
+
+      {/* ── Scan Mode Toggle ─────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-1.5 flex">
+        <button
+          onClick={() => { setScanMode("checkin"); setResult(null); setLastToken(""); }}
+          className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
+            scanMode === "checkin"
+              ? "bg-emerald-500 text-white shadow"
+              : "text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-base leading-none">how_to_reg</span>
+          Mode Check-In
+        </button>
+        <button
+          onClick={() => { setScanMode("souvenir"); setResult(null); setLastToken(""); }}
+          className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
+            scanMode === "souvenir"
+              ? "bg-amber-500 text-white shadow"
+              : "text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-base leading-none">redeem</span>
+          Mode Souvenir
+        </button>
+      </div>
+      <p className="text-xs text-slate-500 -mt-3">
+        {scanMode === "checkin"
+          ? "🟢 Scanning untuk catat kehadiran tamu."
+          : "🟡 Scanning untuk catat pengambilan souvenir. Tamu wajib check-in dulu."}
+      </p>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="flex border-b border-slate-100">
@@ -302,15 +337,19 @@ export default function ScannerPage() {
 
       {result && (
         <div className={`rounded-2xl border p-5 flex items-start gap-4 ${result.success ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200"}`}>
-          <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${result.success ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-500"}`}>
-            <span className="material-symbols-outlined text-2xl leading-none">{result.success ? "how_to_reg" : "cancel"}</span>
+          <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${result.success ? (result.mode === "souvenir" ? "bg-amber-100 text-amber-600" : "bg-emerald-100 text-emerald-600") : "bg-rose-100 text-rose-500"}`}>
+            <span className="material-symbols-outlined text-2xl leading-none">
+              {result.success ? (result.mode === "souvenir" ? "redeem" : "how_to_reg") : "cancel"}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`font-bold text-lg leading-tight ${result.success ? "text-emerald-700" : "text-rose-600"}`}>
-              {result.success ? "Check-In Berhasil!" : "Check-In Gagal"}
+            <p className={`font-bold text-lg leading-tight ${result.success ? (result.mode === "souvenir" ? "text-amber-700" : "text-emerald-700") : "text-rose-600"}`}>
+              {result.success
+                ? (result.mode === "souvenir" ? "Souvenir Diberikan!" : "Check-In Berhasil!")
+                : (result.mode === "souvenir" ? "Souvenir Gagal" : "Check-In Gagal")}
             </p>
             <p className="font-semibold text-slate-800 mt-1">{result.name}</p>
-            <p className={`text-sm mt-0.5 ${result.success ? "text-emerald-600" : "text-rose-500"}`}>{result.message}</p>
+            <p className={`text-sm mt-0.5 ${result.success ? (result.mode === "souvenir" ? "text-amber-600" : "text-emerald-600") : "text-rose-500"}`}>{result.message}</p>
             <p className="text-xs text-slate-400 mt-1 truncate">Token: {result.token}</p>
           </div>
         </div>

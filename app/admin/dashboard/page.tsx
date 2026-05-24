@@ -24,6 +24,7 @@ interface Stats {
   checkedIn: number;
   opened: number;
   draft: number;
+  souvenirsTaken?: number;
 }
 
 // ── Onboarding Checklist untuk template buyer ─────────────────────────────
@@ -195,10 +196,10 @@ export default function DashboardPage() {
   }, []);
 
   const statCards = [
-    { label: "Total Tamu",    value: stats.totalGuests, icon: "group",           color: "bg-sky-500" },
-    { label: "Check-In",      value: stats.checkedIn,   icon: "how_to_reg",      color: "bg-emerald-500" },
-    { label: "Sudah Dibuka",  value: stats.opened,      icon: "mark_email_read", color: "bg-violet-500" },
-    { label: "Belum Dikirim", value: stats.draft,       icon: "hourglass_empty", color: "bg-amber-500" },
+    { label: "Total Tamu",    value: stats.totalGuests,        icon: "group",           color: "bg-sky-500" },
+    { label: "Check-In",      value: stats.checkedIn,          icon: "how_to_reg",      color: "bg-emerald-500" },
+    { label: "Souvenir",      value: stats.souvenirsTaken ?? 0, icon: "redeem",         color: "bg-amber-500" },
+    { label: "Sudah Dibuka",  value: stats.opened,             icon: "mark_email_read", color: "bg-violet-500" },
   ];
 
   if (!roleLoading && isTemplateOnly) {

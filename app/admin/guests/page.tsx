@@ -10,6 +10,10 @@ interface Guest {
   whatsapp: string | null;
   token: string;
   status: string;
+  attendance?: {
+    pickedUpSouvenir: boolean;
+    souvenirTime: string | null;
+  } | null;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -370,6 +374,7 @@ function GuestsContent() {
                       <th className="px-5 py-3 text-left">Nama</th>
                       <th className="px-5 py-3 text-left">WhatsApp</th>
                       <th className="px-5 py-3 text-center">Status</th>
+                      <th className="px-5 py-3 text-center">Souvenir</th>
                       <th className="px-5 py-3 text-center">Link</th>
                       <th className="px-5 py-3 text-center">Aksi</th>
                     </tr>
@@ -414,6 +419,24 @@ function GuestsContent() {
                           <span className={`${STATUS_COLOR[g.status] ?? "bg-slate-100 text-slate-500"} text-xs font-semibold px-2 py-1 rounded-full`}>
                             {g.status.replace("_", " ")}
                           </span>
+                        </td>
+
+                        {/* Souvenir */}
+                        <td className="px-5 py-3 text-center">
+                          {g.attendance?.pickedUpSouvenir ? (
+                            <span
+                              title={g.attendance.souvenirTime ? `Diambil ${new Date(g.attendance.souvenirTime).toLocaleString("id-ID")}` : "Sudah ambil"}
+                              className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-1 rounded-full"
+                            >
+                              <span className="material-symbols-outlined text-sm leading-none">redeem</span>
+                              Sudah
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-400 text-xs font-medium px-2 py-1 rounded-full">
+                              <span className="material-symbols-outlined text-sm leading-none">pending</span>
+                              Belum
+                            </span>
+                          )}
                         </td>
 
                         {/* Copy Link */}

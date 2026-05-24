@@ -115,11 +115,15 @@ export async function POST(req: NextRequest) {
               await prismaCloud.attendance.upsert({
                 where: { guestId: cloudGuest.id },
                 create: {
-                  guestId:     cloudGuest.id,
-                  checkInTime: att.checkInTime,
+                  guestId:          cloudGuest.id,
+                  checkInTime:      att.checkInTime,
+                  pickedUpSouvenir: att.pickedUpSouvenir,
+                  souvenirTime:     att.souvenirTime,
                 },
                 update: {
-                  checkInTime: att.checkInTime,
+                  checkInTime:      att.checkInTime,
+                  pickedUpSouvenir: att.pickedUpSouvenir,
+                  souvenirTime:     att.souvenirTime,
                 },
               });
               syncedAttendances++;

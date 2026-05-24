@@ -119,10 +119,14 @@ model Guest {
 }
 
 model Attendance {
-  id          Int      @id @default(autoincrement())
-  guestId     Int      @unique
-  checkInTime DateTime @default(now())
-  guest       Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  id                Int       @id @default(autoincrement())
+  guestId           Int       @unique
+  checkInTime       DateTime  @default(now())
+  /// Apakah tamu sudah ambil souvenir
+  pickedUpSouvenir  Boolean   @default(false)
+  /// Waktu pengambilan souvenir
+  souvenirTime      DateTime?
+  guest             Guest     @relation(fields: [guestId], references: [id], onDelete: Cascade)
 
   @@map("attendances")
 }
