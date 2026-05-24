@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
+import { ImageUpload } from "@/components/ImageUpload";
 import { normalizeImageUrl } from "@/lib/image-utils";
 
 // Map catalog templateId → internal template id (editor template)
@@ -377,68 +378,26 @@ export default function TemplatePage() {
           Galeri Foto
         </h2>
         <p className="text-xs text-slate-400 mb-2">Masukkan URL gambar (bisa dari Google Drive, Imgur, Cloudinary, dll). Kosongkan jika tidak ingin menampilkan.</p>
-        <div className="mb-5 flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2.5 text-xs text-blue-700">
-          <span className="material-symbols-outlined text-blue-400 text-base shrink-0 mt-0.5">tips_and_updates</span>
+        <div className="mb-5 flex items-start gap-2 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-2.5 text-xs text-emerald-700">
+          <span className="material-symbols-outlined text-emerald-500 text-base shrink-0 mt-0.5">cloud_upload</span>
           <span>
-            <strong>Google Drive:</strong> Buka file → klik kanan → <em>Dapatkan link</em> → ubah akses ke <strong>Siapa saja yang memiliki link</strong> → tempel URL-nya di sini. URL akan otomatis dikonversi.
+            <strong>Upload langsung dari komputer/HP</strong> — tarik file ke kotak atau klik untuk pilih. Foto otomatis tersimpan di cloud (Cloudinary). Bisa juga tempel URL langsung dari Google Drive/Dropbox.
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {gallery.map((url, idx) => {
-            const previewUrl = normalizeImageUrl(url);
-            return (
-            <div key={idx} className="space-y-2">
-              <label className="text-xs font-semibold text-slate-600">Foto {idx + 1}</label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => {
-                    const next = [...gallery];
-                    next[idx] = e.target.value;
-                    setGallery(next);
-                  }}
-                  placeholder="https://..."
-                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#13c8ec]/30 focus:border-[#13c8ec]"
-                />
-                {url && (
-                  <button
-                    onClick={() => {
-                      const next = [...gallery];
-                      next[idx] = "";
-                      setGallery(next);
-                    }}
-                    className="shrink-0 size-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition"
-                  >
-                    <span className="material-symbols-outlined text-base leading-none">close</span>
-                  </button>
-                )}
-              </div>
-              {url && (
-                <div className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={previewUrl}
-                    alt={`Gallery ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      const parent = target.parentElement;
-                      if (parent && !parent.querySelector(".img-error-msg")) {
-                        const msg = document.createElement("div");
-                        msg.className = "img-error-msg absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400";
-                        msg.innerHTML = `<span class="material-symbols-outlined text-2xl">broken_image</span><span class="text-xs">Gambar tidak dapat dimuat.<br/>Pastikan akses Google Drive sudah publik.</span>`;
-                        parent.appendChild(msg);
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            );
-          })}
-        </div>
+        <ImageUpload
+          multiple
+          maxFiles={8}
+          folder={`events/${id}`}
+          value={gallery.filter((g) => g.trim() !== "")}
+          onChange={(urls) => {
+            const arr = Array.isArray(urls) ? urls : [urls];
+            // Pad to 4 slots min for backward compat
+            const padded = [...arr];
+            while (padded.length < 4) padded.push("");
+            setGallery(padded);
+          }}
+          aspectClass="aspect-[4/3]"
+        />
       </div>
 
       {/* Music */}
