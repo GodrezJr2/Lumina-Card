@@ -153,7 +153,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
           onClick={() => setRsvpOpen(true)}
           className="flex h-10 items-center justify-center rounded-full bg-rose-500 hover:bg-rose-600 px-6 text-sm font-bold text-white shadow-lg shadow-rose-200 transition-all"
         >
-          出席確認
+          RSVP
         </button>
       </header>
 
@@ -213,7 +213,7 @@ export function SakuraDreamTemplate(props: InvitationProps) {
             className="text-rose-300 text-4xl tracking-widest"
             style={{ fontFamily: "'Noto Serif JP', serif" }}
           >
-            結婚式
+            Pernikahan
           </motion.p>
 
           <motion.div

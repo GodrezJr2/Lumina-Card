@@ -20,6 +20,7 @@ const WEDDING_PREVIEW: InvitationProps = {
   timeStr: "10.00 WIB",
   location: "Villa Taman Eden, Bogor",
   coupleNames: "Rizky & Nadya",
+  musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
   story:
     "Kami pertama bertemu di sebuah kedai kopi kecil di Bandung, suatu sore yang cerah di tahun 2021. " +
     "Sebuah percakapan kecil berubah menjadi persahabatan yang indah, " +
@@ -42,6 +43,7 @@ const CORPORATE_PREVIEW: InvitationProps = {
   timeStr: "18.00 WIB",
   location: "Ballroom Hotel Mulia, Jakarta",
   coupleNames: "Annual Gala Dinner 2026",
+  musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
   story:
     "PT Maju Bersama dengan bangga mengundang Anda untuk hadir dalam Annual Gala Dinner 2026. " +
     "Malam ini merupakan perayaan pencapaian luar biasa yang telah kita raih bersama sepanjang tahun. " +
@@ -147,6 +149,7 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
       timeStr: "17.00 WIB",
       location: "The Neon Nexus, Jakarta",
       coupleNames: "John & Jane",
+      musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
       story:
         "Sebuah pertemuan di era digital yang mengubah segalanya. " +
         "Dua jiwa yang bertemu lewat layar, kini menyatu dalam satu ikatan abadi. " +
@@ -179,6 +182,7 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
       timeStr: "11.00 WIB",
       location: "Taman Sakura, Bandung",
       coupleNames: "Hana & Ryo",
+      musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
       story:
         "Di bawah hujan kelopak sakura yang memukau, kami menemukan satu sama lain. " +
         "Cinta yang tumbuh bersama musim semi — abadi seperti tradisi yang kami jaga. " +
@@ -211,6 +215,7 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
       timeStr: "16.00 WIB",
       location: "The Golden Ballroom, Surabaya",
       coupleNames: "Arya & Lara",
+      musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
       story:
         "Seperti matahari terbenam yang memancarkan keemasan, cinta kami tumbuh hangat dan abadi. " +
         "Di antara butiran debu emas yang berterbangan, kami menemukan takdir yang indah. " +
