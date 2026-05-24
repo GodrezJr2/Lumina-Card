@@ -29,6 +29,20 @@ export default function MusicPlayer({ musicUrl, accentColor = "#10b981", dark = 
   const isYoutube = /youtube\.com|youtu\.be/.test(musicUrl);
   const isDirectAudio = /\.(mp3|ogg|wav|aac|flac|m4a)(\?|$)/i.test(musicUrl);
 
+  // Extract YouTube video ID from any youtube URL form
+  const ytId = (() => {
+    if (!isYoutube) return null;
+    const m =
+      musicUrl.match(/[?&]v=([a-zA-Z0-9_-]{11})/) ||
+      musicUrl.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/) ||
+      musicUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/) ||
+      musicUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+    return m?.[1] ?? null;
+  })();
+  const ytEmbedSrc = ytId
+    ? `https://www.youtube.com/embed/${ytId}?autoplay=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&iv_load_policy=3`
+    : null;
+
   // Init audio for direct URL
   useEffect(() => {
     if (!isYoutube && musicUrl) {
@@ -87,13 +101,15 @@ export default function MusicPlayer({ musicUrl, accentColor = "#10b981", dark = 
 
   return (
     <>
-      {/* Hidden YouTube iframe (autoplay via JS flag) */}
-      {isYoutube && (
+      {/* Hidden YouTube iframe — only mounted when playing (forces re-fetch w/ autoplay) */}
+      {isYoutube && playing && ytEmbedSrc && (
         <iframe
+          key={`yt-${playing}`}
           title="bg-music"
-          className="absolute top-0 left-0 w-0 h-0 opacity-0 pointer-events-none"
-          src={`${musicUrl}?autoplay=${playing ? 1 : 0}&loop=1&controls=0&mute=0`}
-          allow="autoplay"
+          className="fixed bottom-0 right-0 pointer-events-none"
+          style={{ width: 1, height: 1, opacity: 0 }}
+          src={ytEmbedSrc}
+          allow="autoplay; encrypted-media"
         />
       )}
 
