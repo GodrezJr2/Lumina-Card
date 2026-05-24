@@ -9,6 +9,10 @@ export { MinimalIvoryTemplate } from "./MinimalIvory";
 export { RusticBohoTemplate } from "./RusticBoho";
 export { SeminarProTemplate } from "./SeminarPro";
 export { BirthdayPopTemplate } from "./BirthdayPop";
+export { MidnightGlamTemplate } from "./MidnightGlam";
+export { OceanDriftTemplate } from "./OceanDrift";
+export { RisographRaveTemplate } from "./RisographRave";
+export { TerraCottaTemplate } from "./TerraCotta";
 
 // Re-export shared types & utilities
 export type { InvitationProps } from "./shared";

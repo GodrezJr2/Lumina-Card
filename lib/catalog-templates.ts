@@ -75,13 +75,13 @@ export interface CatalogTemplate {
   /** URL gambar thumbnail untuk grid katalog */
   src: string;
   /** Nama komponen template (untuk lazy import di preview) */
-  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate" | "SakuraDreamTemplate" | "GoldenHourTemplate" | "MinimalIvoryTemplate" | "RusticBohoTemplate" | "SeminarProTemplate" | "BirthdayPopTemplate";
+  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate" | "SakuraDreamTemplate" | "GoldenHourTemplate" | "MinimalIvoryTemplate" | "RusticBohoTemplate" | "SeminarProTemplate" | "BirthdayPopTemplate" | "MidnightGlamTemplate" | "OceanDriftTemplate" | "RisographRaveTemplate" | "TerraCottaTemplate";
   /** Dummy preview props yang dipakai halaman /catalog/preview/[id] */
   previewProps: InvitationProps;
   /** Gradient warna untuk top bar di halaman preview */
   previewGradient: string;
   /** Internal editor template ID (dipakai CATALOG_TO_EDITOR) */
-  editorId: "ethereal" | "royal" | "corporate" | "neon" | "sakura" | "golden" | "ivory" | "boho" | "seminar" | "birthday";
+  editorId: "ethereal" | "royal" | "corporate" | "neon" | "sakura" | "golden" | "ivory" | "boho" | "seminar" | "birthday" | "midnight" | "ocean" | "riso" | "terra";
 }
 
 /**
@@ -251,7 +251,7 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
     price: "Rp 199.000",
     badge: "Trending",
     badgeColor: "bg-orange-200 text-orange-900",
-    src: "https://images.unsplash.com/photo-1469371670807-013ccf25cb87?w=600&q=80",
+    src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80",
     componentName: "RusticBohoTemplate",
     previewProps: WEDDING_PREVIEW,
     previewGradient: "from-orange-700 to-amber-800",
@@ -300,6 +300,75 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
     },
     previewGradient: "from-pink-500 to-amber-500",
     editorId: "birthday",
+  },
+  {
+    id: "midnight-glam",
+    title: "Midnight Glam",
+    category: "Wedding • Luxury Dark",
+    price: "Rp 399.000",
+    badge: "Premium ★",
+    badgeColor: "bg-amber-300/90 text-amber-950",
+    src: "https://images.unsplash.com/photo-1469371670807-013ccf25cb87?w=600&q=80",
+    componentName: "MidnightGlamTemplate",
+    previewProps: WEDDING_PREVIEW,
+    previewGradient: "from-slate-900 to-amber-900",
+    editorId: "midnight",
+  },
+  {
+    id: "ocean-drift",
+    title: "Ocean Drift",
+    category: "Wedding • Beach Editorial",
+    price: "Rp 280.000",
+    badge: "Editorial",
+    badgeColor: "bg-teal-200 text-teal-900",
+    src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
+    componentName: "OceanDriftTemplate",
+    previewProps: WEDDING_PREVIEW,
+    previewGradient: "from-teal-800 to-orange-700",
+    editorId: "ocean",
+  },
+  {
+    id: "risograph-rave",
+    title: "Risograph Rave",
+    category: "Birthday • Print",
+    price: "Rp 169.000",
+    badge: "Bold",
+    badgeColor: "bg-pink-300 text-pink-950",
+    src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+    componentName: "RisographRaveTemplate",
+    previewProps: {
+      guestName: "Tamu Undangan",
+      token: "preview",
+      eventName: "Birthday Bash Aira",
+      dateStr: "5 Mei 2026",
+      timeStr: "20.00 WIB",
+      location: "The Loft, Jakarta",
+      coupleNames: "Aira's 22nd",
+      musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
+      story: "Yuk drop by buat birthday party-nya Aira. Drinks, music, photobooth — semua udah siap. Cuma kurang kamu doang.",
+      venueAddress: "Jl. Senopati No. 22, Jakarta Selatan 12190",
+      gallery: [
+        "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+        "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&q=80",
+        "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=600&q=80",
+      ],
+    },
+    previewGradient: "from-pink-600 to-cyan-600",
+    editorId: "riso",
+  },
+  {
+    id: "terra-cotta",
+    title: "Terra Cotta",
+    category: "Wedding • Cultural Indo",
+    price: "Rp 299.000",
+    badge: "Heritage",
+    badgeColor: "bg-red-200 text-red-950",
+    src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80",
+    componentName: "TerraCottaTemplate",
+    previewProps: WEDDING_PREVIEW,
+    previewGradient: "from-red-900 to-emerald-900",
+    editorId: "terra",
   },
 ];
 

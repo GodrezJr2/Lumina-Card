@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -13,6 +14,10 @@ import {
   RusticBohoTemplate,
   SeminarProTemplate,
   BirthdayPopTemplate,
+  MidnightGlamTemplate,
+  OceanDriftTemplate,
+  RisographRaveTemplate,
+  TerraCottaTemplate,
 } from "@/components/InvitationTemplates";
 import type { InvitationProps } from "@/components/InvitationTemplates";
 import { CATALOG_TEMPLATE_MAP } from "@/lib/catalog-templates";
@@ -30,12 +35,21 @@ const COMPONENT_MAP: Record<string, React.ComponentType<InvitationProps>> = {
   RusticBohoTemplate,
   SeminarProTemplate,
   BirthdayPopTemplate,
+  MidnightGlamTemplate,
+  OceanDriftTemplate,
+  RisographRaveTemplate,
+  TerraCottaTemplate,
 };
 
 export default function CatalogPreviewPage() {
   const params = useParams();
   const router = useRouter();
   const templateId = params?.templateId as string;
+
+  // Scroll-to-top on mount (preview always starts from hero)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [templateId]);
 
   const template = CATALOG_TEMPLATE_MAP[templateId];
 

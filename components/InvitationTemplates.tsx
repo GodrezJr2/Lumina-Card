@@ -16,3 +16,7 @@ export { MinimalIvoryTemplate } from "./templates/MinimalIvory";
 export { RusticBohoTemplate } from "./templates/RusticBoho";
 export { SeminarProTemplate } from "./templates/SeminarPro";
 export { BirthdayPopTemplate } from "./templates/BirthdayPop";
+export { MidnightGlamTemplate } from "./templates/MidnightGlam";
+export { OceanDriftTemplate } from "./templates/OceanDrift";
+export { RisographRaveTemplate } from "./templates/RisographRave";
+export { TerraCottaTemplate } from "./templates/TerraCotta";
