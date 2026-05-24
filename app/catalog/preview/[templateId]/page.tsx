@@ -9,6 +9,10 @@ import {
   NeonNexusTemplate,
   SakuraDreamTemplate,
   GoldenHourTemplate,
+  MinimalIvoryTemplate,
+  RusticBohoTemplate,
+  SeminarProTemplate,
+  BirthdayPopTemplate,
 } from "@/components/InvitationTemplates";
 import type { InvitationProps } from "@/components/InvitationTemplates";
 import { CATALOG_TEMPLATE_MAP } from "@/lib/catalog-templates";
@@ -22,6 +26,10 @@ const COMPONENT_MAP: Record<string, React.ComponentType<InvitationProps>> = {
   NeonNexusTemplate,
   SakuraDreamTemplate,
   GoldenHourTemplate,
+  MinimalIvoryTemplate,
+  RusticBohoTemplate,
+  SeminarProTemplate,
+  BirthdayPopTemplate,
 };
 
 export default function CatalogPreviewPage() {

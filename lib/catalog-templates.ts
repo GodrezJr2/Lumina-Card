@@ -75,13 +75,13 @@ export interface CatalogTemplate {
   /** URL gambar thumbnail untuk grid katalog */
   src: string;
   /** Nama komponen template (untuk lazy import di preview) */
-  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate" | "SakuraDreamTemplate" | "GoldenHourTemplate";
+  componentName: "EtherealGardenTemplate" | "RoyalGoldTemplate" | "ModernCorporateTemplate" | "NeonNexusTemplate" | "SakuraDreamTemplate" | "GoldenHourTemplate" | "MinimalIvoryTemplate" | "RusticBohoTemplate" | "SeminarProTemplate" | "BirthdayPopTemplate";
   /** Dummy preview props yang dipakai halaman /catalog/preview/[id] */
   previewProps: InvitationProps;
   /** Gradient warna untuk top bar di halaman preview */
   previewGradient: string;
   /** Internal editor template ID (dipakai CATALOG_TO_EDITOR) */
-  editorId: "ethereal" | "royal" | "corporate" | "neon" | "sakura" | "golden";
+  editorId: "ethereal" | "royal" | "corporate" | "neon" | "sakura" | "golden" | "ivory" | "boho" | "seminar" | "birthday";
 }
 
 /**
@@ -230,6 +230,76 @@ export const CATALOG_TEMPLATES: CatalogTemplate[] = [
     },
     previewGradient: "from-amber-700 to-orange-900",
     editorId: "golden",
+  },
+  {
+    id: "minimal-ivory",
+    title: "Minimal Ivory",
+    category: "Wedding • Editorial",
+    price: "Rp 220.000",
+    badge: "New",
+    badgeColor: "bg-stone-100 text-stone-800",
+    src: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&q=80",
+    componentName: "MinimalIvoryTemplate",
+    previewProps: WEDDING_PREVIEW,
+    previewGradient: "from-stone-700 to-stone-900",
+    editorId: "ivory",
+  },
+  {
+    id: "rustic-boho",
+    title: "Rustic Boho",
+    category: "Wedding • Outdoor",
+    price: "Rp 199.000",
+    badge: "Trending",
+    badgeColor: "bg-orange-200 text-orange-900",
+    src: "https://images.unsplash.com/photo-1469371670807-013ccf25cb87?w=600&q=80",
+    componentName: "RusticBohoTemplate",
+    previewProps: WEDDING_PREVIEW,
+    previewGradient: "from-orange-700 to-amber-800",
+    editorId: "boho",
+  },
+  {
+    id: "seminar-pro",
+    title: "Seminar Pro",
+    category: "Corporate • Conference",
+    price: "Rp 250.000",
+    badge: "B2B",
+    badgeColor: "bg-indigo-200 text-indigo-900",
+    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
+    componentName: "SeminarProTemplate",
+    previewProps: CORPORATE_PREVIEW,
+    previewGradient: "from-indigo-700 to-slate-900",
+    editorId: "seminar",
+  },
+  {
+    id: "birthday-pop",
+    title: "Birthday Pop",
+    category: "Birthday • Party",
+    price: "Rp 149.000",
+    badge: "Fun",
+    badgeColor: "bg-pink-200 text-pink-900",
+    src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+    componentName: "BirthdayPopTemplate",
+    previewProps: {
+      guestName: "Tamu Undangan",
+      token: "preview",
+      eventName: "Birthday Party Aira",
+      dateStr: "5 Mei 2026",
+      timeStr: "16.00 WIB",
+      location: "The Party House, Jakarta",
+      coupleNames: "Sweet 17 Aira",
+      musicUrl: "https://youtu.be/RZvs6RYakNs?si=vQnrWqRUVWSrIt_Z",
+      story:
+        "Yuk meriahkan ulang tahun ke-17 Aira! Akan ada cake, balon, photobooth seru, dan banyak kejutan menanti. Jangan sampai ketinggalan momen spesial ini!",
+      venueAddress: "Jl. Pesta Riang No. 17, Jakarta Selatan 12110",
+      gallery: [
+        "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+        "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&q=80",
+        "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=600&q=80",
+      ],
+    },
+    previewGradient: "from-pink-500 to-amber-500",
+    editorId: "birthday",
   },
 ];
 

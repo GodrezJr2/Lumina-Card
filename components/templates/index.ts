@@ -5,6 +5,10 @@ export { ModernCorporateTemplate } from "./ModernCorporate";
 export { NeonNexusTemplate } from "./NeonNexus";
 export { SakuraDreamTemplate } from "./SakuraDream";
 export { GoldenHourTemplate } from "./GoldenHour";
+export { MinimalIvoryTemplate } from "./MinimalIvory";
+export { RusticBohoTemplate } from "./RusticBoho";
+export { SeminarProTemplate } from "./SeminarPro";
+export { BirthdayPopTemplate } from "./BirthdayPop";
 
 // Re-export shared types & utilities
 export type { InvitationProps } from "./shared";

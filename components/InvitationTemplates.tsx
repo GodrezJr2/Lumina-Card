@@ -12,3 +12,7 @@ export { ModernCorporateTemplate } from "./templates/ModernCorporate";
 export { NeonNexusTemplate } from "./templates/NeonNexus";
 export { SakuraDreamTemplate } from "./templates/SakuraDream";
 export { GoldenHourTemplate } from "./templates/GoldenHour";
+export { MinimalIvoryTemplate } from "./templates/MinimalIvory";
+export { RusticBohoTemplate } from "./templates/RusticBoho";
+export { SeminarProTemplate } from "./templates/SeminarPro";
+export { BirthdayPopTemplate } from "./templates/BirthdayPop";

@@ -12,6 +12,10 @@ const CATALOG_TO_EDITOR: Record<string, string> = {
   "royal-gold":       "royal",
   "corporate-modern": "corporate",
   "cyber-tech":       "neon",
+  "minimal-ivory":    "ivory",
+  "rustic-boho":      "boho",
+  "seminar-pro":      "seminar",
+  "birthday-pop":     "birthday",
   // legacy IDs (backward compatibility)
   "golden-elegance":  "ethereal",
   "noir-luxe":        "royal",
