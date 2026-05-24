@@ -45,7 +45,13 @@ export default function NavbarWrapper() {
     router.refresh();
   }
 
-  if (HIDDEN_ROUTES.includes(pathname) || pathname.startsWith("/admin")) return null;
+  if (
+    HIDDEN_ROUTES.includes(pathname) ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/catalog/preview") ||
+    pathname.startsWith("/i/") ||
+    pathname.startsWith("/inv/")
+  ) return null;
 
   const displayName = user?.name ?? user?.email ?? "";
   const initials = displayName
