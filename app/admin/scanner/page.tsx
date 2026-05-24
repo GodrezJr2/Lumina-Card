@@ -138,14 +138,39 @@ export default function ScannerPage() {
 
   useEffect(() => {
     if (mode !== "camera" || !scanning) return;
-    let scanner: { clear: () => Promise<void> } | null = null;
-    import("html5-qrcode").then(({ Html5QrcodeScanner }) => {
-      const s = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 }, false);
-      s.render((text: string) => doCheckin(text), () => {});
-      scanner = s;
-      scannerRef.current = s;
-    }).catch(() => setError("Gagal memuat library kamera."));
-    return () => { scanner?.clear().catch(() => {}); };
+    let scanner: { stop?: () => Promise<void>; clear: () => Promise<void> } | null = null;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        if (cancelled) return;
+        const html5 = new Html5Qrcode("qr-reader", { verbose: false });
+        scanner = {
+          clear: async () => {
+            try { await html5.stop(); } catch {}
+            try { await html5.clear(); } catch {}
+          },
+        };
+        scannerRef.current = scanner;
+        await html5.start(
+          { facingMode: { ideal: "environment" } },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (text: string) => doCheckin(text),
+          () => {}
+        );
+      } catch (err) {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(`Gagal akses kamera: ${msg}. Coba refresh atau gunakan mode Upload Foto.`);
+        setScanning(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      scanner?.clear().catch(() => {});
+    };
   }, [mode, scanning, doCheckin]);
 
   function stopCamera() {
