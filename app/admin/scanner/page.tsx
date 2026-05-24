@@ -154,7 +154,7 @@ export default function ScannerPage() {
         };
         scannerRef.current = scanner;
         await html5.start(
-          { facingMode: { ideal: "environment" } },
+          { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           (text: string) => doCheckin(text),
           () => {}
