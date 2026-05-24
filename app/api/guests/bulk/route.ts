@@ -28,9 +28,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Event tidak ditemukan." }, { status: 404 });
   }
 
-  // Parse format "Nama | 08xxxxxxxx" atau hanya "Nama"
+  // Parse format: "Nama | 08xxx" atau "Nama\t08xxx" (Excel paste) atau "Nama,08xxx" (CSV)
+  // Cocok semua: pipe, tab, koma — pisahkan max 2 kolom (sisa diabaikan)
   const data = lines.map((line: string) => {
-    const parts = line.split("|").map((p: string) => p.trim());
+    const parts = line.split(/\s*[|\t,]\s*/, 2).map((p: string) => p.trim());
     const name = parts[0] || line.trim();
     const whatsapp = parts[1] ?? "";
     return {

@@ -10,9 +10,7 @@ import { can } from "@/lib/roles";
 const NAV_ALL = [
   { href: "/admin/panel",      icon: "manage_accounts",  label: "All Events (Owner)", feature: "superAdmin",  group: "admin" },
   { href: "/admin/dashboard",  icon: "dashboard",        label: "Overview",           feature: "dashboard",   group: "common" },
-  { href: "/admin/events",     icon: "event",            label: "Events",             feature: "events",      group: "common" },
-  { href: "/admin/guests",     icon: "group",            label: "Guest List",         feature: "guests",      group: "service" },
-  { href: "/admin/guests/add", icon: "person_add",       label: "Add Guest",          feature: "guests",      group: "service" },
+  { href: "/admin/events",     icon: "event",            label: "Events & Tamu",      feature: "events",      group: "common" },
   { href: "/admin/broadcast",  icon: "send",             label: "WA Sender",          feature: "broadcast",   group: "service" },
   { href: "/admin/scanner",    icon: "qr_code_scanner",  label: "QR Scanner",         feature: "scanner",     group: "service" },
   { href: "/admin/upgrade",    icon: "bolt",             label: "Upgrade Paket",      feature: "upgrade",     group: "common" },

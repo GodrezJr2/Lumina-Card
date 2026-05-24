@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
 
 interface Guest {
@@ -30,6 +31,72 @@ export default function GuestsPage() {
       <GuestsContent />
     </Suspense>
     </RoleGate>
+  );
+}
+
+// ── No Event Picker — empty state with event list to pick from ─────────────
+function NoEventPicker() {
+  const [events, setEvents] = useState<{ id: number; name: string; date: string; _count?: { guests: number } }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/events")
+      .then((r) => r.json())
+      .then((d) => setEvents(d.events ?? []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-sm text-slate-400">Memuat events…</div>;
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
+        <span className="material-symbols-outlined text-5xl text-slate-300">event_busy</span>
+        <p className="mt-3 text-slate-500 text-sm">Belum ada event. Buat event dulu untuk mulai kelola tamu.</p>
+        <Link href="/admin/events" className="mt-4 inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#0fb3d4] transition">
+          <span className="material-symbols-outlined text-base leading-none">add</span>
+          Buat Event Pertama
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8">
+      <div className="text-center mb-6">
+        <span className="material-symbols-outlined text-4xl text-[#13c8ec]/60">touch_app</span>
+        <h2 className="mt-2 font-bold text-slate-800">Pilih event untuk kelola tamunya</h2>
+        <p className="text-sm text-slate-500 mt-1">Klik salah satu event di bawah.</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {events.map((ev) => (
+          <Link
+            key={ev.id}
+            href={`/admin/guests?eventId=${ev.id}`}
+            className="group flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-[#13c8ec] hover:bg-[#13c8ec]/5 transition"
+          >
+            <span className="size-10 rounded-xl bg-[#13c8ec]/10 group-hover:bg-[#13c8ec]/20 flex items-center justify-center text-[#13c8ec] shrink-0 transition">
+              <span className="material-symbols-outlined">event</span>
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-slate-800 text-sm truncate">{ev.name}</p>
+              <p className="text-xs text-slate-400">
+                {new Date(ev.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                {ev._count?.guests !== undefined && ` · ${ev._count.guests} tamu`}
+              </p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 group-hover:text-[#13c8ec] transition">arrow_forward</span>
+          </Link>
+        ))}
+      </div>
+      <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+        <Link href="/admin/events" className="text-xs text-slate-500 hover:text-[#13c8ec]">
+          + Buat event baru
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -323,13 +390,7 @@ function GuestsContent() {
       </div>
 
       {!eventId ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
-          <span className="material-symbols-outlined text-5xl text-slate-300">group</span>
-          <p className="mt-3 text-slate-400 text-sm">Buka halaman Events dan klik &quot;Tamu&quot; pada event yang diinginkan.</p>
-          <a href="/admin/events" className="mt-4 inline-flex items-center gap-2 bg-[#13c8ec] text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#0fb3d4] transition">
-            Ke Halaman Events
-          </a>
-        </div>
+        <NoEventPicker />
       ) : (
         <>
           {/* Filter bar */}
