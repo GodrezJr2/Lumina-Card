@@ -8,27 +8,37 @@ export async function POST(
   try {
     const { attendance, message } = await req.json();
 
+    if (attendance !== "hadir" && attendance !== "tidak") {
+      return NextResponse.json({ error: "attendance harus 'hadir' atau 'tidak'." }, { status: 400 });
+    }
+
     const guest = await prisma.guest.findUnique({
       where: { token: params.slug },
     });
     if (!guest) return NextResponse.json({ error: "Tamu tidak ditemukan." }, { status: 404 });
 
-    // Store RSVP response in Attendance table (reusing guestId) or just update guest status
-    // We store hadir/tidak in attendance notes via upsert
+    // Persist RSVP response on Guest
+    await prisma.guest.update({
+      where: { id: guest.id },
+      data: {
+        rsvpStatus:  attendance,
+        rsvpMessage: typeof message === "string" ? message.slice(0, 500) : null,
+        rsvpAt:      new Date(),
+      },
+    });
+
+    // Hadir → bonus: pre-create attendance row (untuk dashboard counter)
     if (attendance === "hadir") {
       await prisma.attendance.upsert({
-        where: { guestId: guest.id },
-        update: { checkInTime: new Date() },
+        where:  { guestId: guest.id },
+        update: {},   // jangan reset checkInTime — itu untuk scan QR
         create: { guestId: guest.id },
       });
     }
 
-    // Log message if provided (could extend schema — for now just return success)
-    console.log(`RSVP from ${guest.name}: ${attendance}. Message: ${message ?? ""}`);
-
     return NextResponse.json({ success: true, attendance });
   } catch (err) {
-    console.error(err);
+    console.error("[rsvp] error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

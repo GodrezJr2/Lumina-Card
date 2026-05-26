@@ -11,6 +11,9 @@ interface Guest {
   whatsapp: string | null;
   token: string;
   status: string;
+  rsvpStatus?: "hadir" | "tidak" | null;
+  rsvpMessage?: string | null;
+  rsvpAt?: string | null;
   attendance?: {
     pickedUpSouvenir: boolean;
     souvenirTime: string | null;
@@ -435,6 +438,7 @@ function GuestsContent() {
                       <th className="px-5 py-3 text-left">Nama</th>
                       <th className="px-5 py-3 text-left">WhatsApp</th>
                       <th className="px-5 py-3 text-center">Status</th>
+                      <th className="px-5 py-3 text-center">RSVP</th>
                       <th className="px-5 py-3 text-center">Souvenir</th>
                       <th className="px-5 py-3 text-center">Link</th>
                       <th className="px-5 py-3 text-center">Aksi</th>
@@ -480,6 +484,38 @@ function GuestsContent() {
                           <span className={`${STATUS_COLOR[g.status] ?? "bg-slate-100 text-slate-500"} text-xs font-semibold px-2 py-1 rounded-full`}>
                             {g.status.replace("_", " ")}
                           </span>
+                        </td>
+
+                        {/* RSVP */}
+                        <td className="px-5 py-3 text-center">
+                          {g.rsvpStatus === "hadir" ? (
+                            <span
+                              title={[
+                                g.rsvpAt ? `Konfirmasi ${new Date(g.rsvpAt).toLocaleString("id-ID")}` : "",
+                                g.rsvpMessage ? `"${g.rsvpMessage}"` : "",
+                              ].filter(Boolean).join("\n") || "Hadir"}
+                              className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded-full"
+                            >
+                              <span className="material-symbols-outlined text-sm leading-none">how_to_reg</span>
+                              Hadir
+                            </span>
+                          ) : g.rsvpStatus === "tidak" ? (
+                            <span
+                              title={[
+                                g.rsvpAt ? `Konfirmasi ${new Date(g.rsvpAt).toLocaleString("id-ID")}` : "",
+                                g.rsvpMessage ? `"${g.rsvpMessage}"` : "",
+                              ].filter(Boolean).join("\n") || "Tidak hadir"}
+                              className="inline-flex items-center gap-1 bg-rose-100 text-rose-600 text-xs font-semibold px-2 py-1 rounded-full"
+                            >
+                              <span className="material-symbols-outlined text-sm leading-none">cancel</span>
+                              Tidak
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-400 text-xs font-medium px-2 py-1 rounded-full">
+                              <span className="material-symbols-outlined text-sm leading-none">hourglass_empty</span>
+                              Pending
+                            </span>
+                          )}
                         </td>
 
                         {/* Souvenir */}

@@ -106,14 +106,18 @@ model Event {
 }
 
 model Guest {
-  id         Int         @id @default(autoincrement())
-  eventId    Int
-  name       String
-  whatsapp   String
-  token      String      @unique @default(uuid())
-  status     GuestStatus @default(Draft)
-  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  attendance Attendance?
+  id          Int         @id @default(autoincrement())
+  eventId     Int
+  name        String
+  whatsapp    String
+  token       String      @unique @default(uuid())
+  status      GuestStatus @default(Draft)
+  /// Konfirmasi RSVP dari tamu via undangan publik
+  rsvpStatus  String?     // "hadir" | "tidak" | null (belum respon)
+  rsvpMessage String?     @db.Text
+  rsvpAt      DateTime?
+  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  attendance  Attendance?
 
   @@map("guests")
 }

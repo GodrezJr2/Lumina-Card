@@ -12,7 +12,24 @@ export async function GET(req: NextRequest) {
 
   const guests = await prisma.guest.findMany({
     where: { eventId: Number(eventId) },
-    include: { attendance: true },
+    select: {
+      id:          true,
+      eventId:     true,
+      name:        true,
+      whatsapp:    true,
+      token:       true,
+      status:      true,
+      rsvpStatus:  true,
+      rsvpMessage: true,
+      rsvpAt:      true,
+      attendance: {
+        select: {
+          checkInTime:      true,
+          pickedUpSouvenir: true,
+          souvenirTime:     true,
+        },
+      },
+    },
     orderBy: { id: "asc" },
   });
 

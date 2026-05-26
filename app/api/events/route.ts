@@ -26,7 +26,7 @@ export async function GET() {
 
     const allGuests = await prisma.guest.findMany({
       where:  { event: { userId } },
-      select: { status: true, attendance: { select: { pickedUpSouvenir: true } } },
+      select: { status: true, rsvpStatus: true, attendance: { select: { pickedUpSouvenir: true } } },
     });
 
     const stats = {
@@ -35,6 +35,9 @@ export async function GET() {
       opened:         allGuests.filter((g) => g.status === "Opened").length,
       draft:          allGuests.filter((g) => g.status === "Draft").length,
       souvenirsTaken: allGuests.filter((g) => g.attendance?.pickedUpSouvenir).length,
+      rsvpHadir:      allGuests.filter((g) => g.rsvpStatus === "hadir").length,
+      rsvpTidak:      allGuests.filter((g) => g.rsvpStatus === "tidak").length,
+      rsvpPending:    allGuests.filter((g) => !g.rsvpStatus).length,
     };
 
     return NextResponse.json({ events, stats });
