@@ -8,7 +8,7 @@ function SuccessContent() {
   const params = useSearchParams();
   const orderId = params.get("orderId") || "EI-" + Math.random().toString(36).slice(2, 10).toUpperCase();
   const plan = params.get("plan") || "Professional";
-  const total = params.get("total") || "Rp 799.000";
+  const total = params.get("total") || "Rp 199.000";
   const status = params.get("status") || "success"; // "success" | "pending"
   const isPending = status === "pending";
   const date = new Date().toLocaleDateString("id-ID", {

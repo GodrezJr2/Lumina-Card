@@ -11,7 +11,7 @@ const PLANS = [
   {
     role: "DIY_CLIENT" as Role,
     name: "DIY – Self Service",
-    price: "Rp 299.000",
+    price: "Rp 79.000",
     period: "/ event",
     color: "indigo",
     icon: "edit_note",
@@ -30,7 +30,7 @@ const PLANS = [
   {
     role: "FULL_SERVICE_CLIENT" as Role,
     name: "Full Service",
-    price: "Rp 799.000",
+    price: "Rp 199.000",
     period: "/ event",
     color: "purple",
     icon: "support_agent",

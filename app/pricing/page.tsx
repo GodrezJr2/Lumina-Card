@@ -7,7 +7,7 @@ const PLANS = [
   {
     name: "Basic",
     slug: "basic",
-    price: "Rp 299K",
+    price: "Rp 79K",
     per: "/event",
     desc: "Cocok untuk acara kecil dan intimate. Kelola tamu, QR scanner, WA blast hingga 200 tamu.",
     highlight: false,
@@ -27,7 +27,7 @@ const PLANS = [
   {
     name: "Professional",
     slug: "professional",
-    price: "Rp 799K",
+    price: "Rp 199K",
     per: "/event",
     desc: "Solusi terlengkap untuk pernikahan dan acara formal dengan skala menengah hingga besar.",
     highlight: true,

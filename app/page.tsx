@@ -37,7 +37,7 @@ const FEATURES = [
 const PRICING = [
   {
     name: "Basic",
-    price: "Rp 299K",
+    price: "Rp 79K",
     per: "/event",
     desc: "Untuk acara kecil & intimate.",
     highlight: false,
@@ -49,7 +49,7 @@ const PRICING = [
   },
   {
     name: "Professional",
-    price: "Rp 799K",
+    price: "Rp 199K",
     per: "/event",
     desc: "Solusi lengkap untuk pernikahan.",
     highlight: true,

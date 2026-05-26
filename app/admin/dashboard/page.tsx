@@ -223,7 +223,7 @@ export default function DashboardPage() {
             <p className="text-sm font-semibold text-blue-900">Kamu punya Template Undangan Digital</p>
             <p className="text-sm text-blue-700 mt-0.5">
               Link undangan bisa dibagikan ke semua tamu sekaligus. Butuh kelola tamu + QR check-in?{" "}
-              <Link href="/pricing" className="font-bold underline">Tambah Paket Absen</Link> mulai Rp 299K — bisa dikombinasikan dengan template kamu!
+              <Link href="/pricing" className="font-bold underline">Tambah Paket Absen</Link> mulai Rp 79K — bisa dikombinasikan dengan template kamu!
             </p>
           </div>
         </div>

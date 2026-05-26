@@ -32,7 +32,7 @@ function CheckoutContent() {
   const router      = useRouter();
   const searchParams = useSearchParams();
   const planName    = searchParams.get("plan")  || "Professional";
-  const planPrice   = searchParams.get("price") || "Rp 799K";
+  const planPrice   = searchParams.get("price") || "Rp 199K";
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
