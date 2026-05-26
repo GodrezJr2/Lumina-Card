@@ -160,19 +160,9 @@ CLOUDINARY_API_SECRET="..."
 
 ## Demo Accounts
 
-After running `seed-demo.mjs`, all accounts use password `123456`:
+For local development, use the seed scripts (excluded from this repo for credential hygiene). After running them, accounts cover all five RBAC tiers: SUPER_ADMIN, FULL_SERVICE_CLIENT, DIY_CLIENT, USHER_STAFF, and BASIC_USER.
 
-| Role | Email | Use case |
-|---|---|---|
-| SUPER_ADMIN | `admin@luminacard.app` | User mgmt, audit log |
-| FULL_SERVICE_CLIENT | `fullservice@luminacard.app` | Premium plan + Midnight Glam template |
-| DIY_CLIENT | `diy@luminacard.app` | Self-service + Ethereal Garden template |
-| USHER_STAFF | `usher@luminacard.app` | Scanner-only role |
-| BASIC_USER | `basic@luminacard.app` | Fresh user for purchase-flow demo |
-
-Public invitation pages (no login):
-- https://lumina-card.vercel.app/i/andi-maya-2026
-- https://lumina-card.vercel.app/i/bayu-nadira-2026
+Live deployment credentials are not published. Browse the public invitation pages above for a read-only view.
 
 ---
 

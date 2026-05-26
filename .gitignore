@@ -16,6 +16,16 @@ dist/
 .env.test.local
 .env.production.local
 
+# ── Demo / seed scripts (contain live demo credentials) ───
+scripts/seed-demo.mjs
+scripts/seed-passwords.mjs
+scripts/seed-admin.mjs
+scripts/list-users.mjs
+scripts/delete-old-admin.mjs
+DEMO_FLOW.md
+LAPORAN_REVISI*.md
+*.pdf
+
 # ── Prisma ────────────────────────────────────────────
 # Generated client (akan di-generate ulang saat deploy)
 prisma/generated/
