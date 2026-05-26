@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ? (NAV_TEMPLATE_ONLY as unknown as { href: string; icon: string; label: string; feature: string; group: string }[])
       : (NAV_ALL as unknown as { href: string; icon: string; label: string; feature: string; group: string }[]);
 
-  const visibleNav = baseNav.filter(({ feature }) => !role || can(role, feature as Parameters<typeof can>[1], servicePlan ?? null));
+  const visibleNav = baseNav.filter(({ feature }) => !!role && can(role, feature as Parameters<typeof can>[1], servicePlan ?? null));
 
   return (
     <div className="flex min-h-screen bg-[#f8fbfc]">
