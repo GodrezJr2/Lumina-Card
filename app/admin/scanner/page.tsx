@@ -201,6 +201,7 @@ export default function ScannerPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">QR Scanner</h1>
           <p className="text-sm text-slate-500 mt-1">Check-in tamu dengan scan QR Code tiket mereka.</p>
+          <DbIndicator />
         </div>
 
         {/* ── Sync ke Server ─────────────────────────────────────────── */}
@@ -381,5 +382,39 @@ export default function ScannerPage() {
       )}
     </div>
     </RoleGate>
+  );
+}
+
+function DbIndicator() {
+  const [info, setInfo] = useState<{
+    isLocal: boolean;
+    host: string;
+    database: string;
+    label: string;
+    canSync: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/_debug/db-info")
+      .then((r) => r.json())
+      .then(setInfo)
+      .catch(() => {});
+  }, []);
+
+  if (!info) return null;
+
+  return (
+    <div
+      title={`${info.host}/${info.database}`}
+      className={`mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+        info.isLocal
+          ? "border-amber-200 bg-amber-50 text-amber-700"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+      }`}
+    >
+      <span className="material-symbols-outlined text-sm leading-none">{info.isLocal ? "home_storage" : "cloud_done"}</span>
+      {info.label}
+      {info.canSync && <span className="text-amber-500">• Sync ready</span>}
+    </div>
   );
 }

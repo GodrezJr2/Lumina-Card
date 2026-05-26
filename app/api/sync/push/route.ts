@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     // ── Ambil semua guest + attendance dari DB lokal ──────────────────────
     const localGuests = await prismaLocal.guest.findMany({
       where: { eventId },
-      include: { attendance: true },
+      include: { attendance: true, event: { select: { slugUrl: true } } },
     });
 
     if (localGuests.length === 0) {
@@ -75,11 +75,22 @@ export async function POST(req: NextRequest) {
     const errors: string[] = [];
 
     try {
-      // Pastikan event ada di cloud (cek by id)
-      const cloudEvent = await prismaCloud.event.findUnique({ where: { id: eventId } });
+      const localEvent = await prismaLocal.event.findUnique({
+        where: { id: eventId },
+        select: { slugUrl: true },
+      });
+
+      if (!localEvent?.slugUrl) {
+        return NextResponse.json(
+          { error: "Event lokal belum punya slugUrl. Buka editor template dulu dan simpan slug undangan." },
+          { status: 400 }
+        );
+      }
+
+      const cloudEvent = await prismaCloud.event.findUnique({ where: { slugUrl: localEvent.slugUrl } });
       if (!cloudEvent) {
         return NextResponse.json(
-          { error: `Event #${eventId} tidak ditemukan di server. Pastikan event sudah dibuat di production.` },
+          { error: `Event dengan slug "${localEvent.slugUrl}" tidak ditemukan di server. Buat event di production dulu sebelum sync.` },
           { status: 404 }
         );
       }
@@ -91,17 +102,23 @@ export async function POST(req: NextRequest) {
           await prismaCloud.guest.upsert({
             where: { token: guest.token },
             create: {
-              id:       guest.id,
-              eventId:  guest.eventId,
+              eventId:  cloudEvent.id,
               name:     guest.name,
               whatsapp: guest.whatsapp,
               token:    guest.token,
               status:   guest.status,
+              rsvpStatus:  guest.rsvpStatus,
+              rsvpMessage: guest.rsvpMessage,
+              rsvpAt:      guest.rsvpAt,
             },
             update: {
+              eventId:  cloudEvent.id,
               name:     guest.name,
               whatsapp: guest.whatsapp,
               status:   guest.status,
+              rsvpStatus:  guest.rsvpStatus,
+              rsvpMessage: guest.rsvpMessage,
+              rsvpAt:      guest.rsvpAt,
             },
           });
           syncedGuests++;
