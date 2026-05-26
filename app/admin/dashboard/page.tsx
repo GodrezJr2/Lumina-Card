@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
 import { useRole } from "@/hooks/useRole";
@@ -179,6 +179,8 @@ function OnboardingChecklist({ event }: { event: Event }) {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventIdParam = searchParams.get("eventId");
   const { isTemplateOnly, hasService, loading: roleLoading } = useRole();
   const [events, setEvents] = useState<Event[]>([]);
   const [stats, setStats] = useState<Stats>({ totalGuests: 0, checkedIn: 0, opened: 0, draft: 0 });
@@ -189,14 +191,15 @@ export default function DashboardPage() {
   // Hanya redirect jika belum punya apa-apa (seharusnya tidak terjadi karena middleware)
 
   useEffect(() => {
-    fetch("/api/events")
+    const url = eventIdParam ? `/api/events?eventId=${eventIdParam}` : "/api/events";
+    fetch(url)
       .then((r) => r.json())
       .then((data) => {
         setEvents(data.events ?? []);
         setStats(data.stats ?? { totalGuests: 0, checkedIn: 0, opened: 0, draft: 0 });
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [eventIdParam]);
 
   const statCards = [
     { label: "Total Tamu",    value: stats.totalGuests,        icon: "group",           color: "bg-sky-500" },

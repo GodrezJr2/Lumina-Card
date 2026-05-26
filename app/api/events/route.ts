@@ -12,20 +12,45 @@ function getAuthUserId(): number | null {
   return userId ? Number(userId) : null;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const userId = getAuthUserId();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Hanya ambil event milik user sendiri
+    const { searchParams } = new URL(req.url);
+    const eventIdParam = searchParams.get("eventId");
+
+    // Cek role pengguna — SUPER_ADMIN boleh lihat event milik klien lain
+    const me = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    const isSuperAdmin = me?.role === "SUPER_ADMIN";
+
+    let scopeWhere: { userId?: number; id?: number } = { userId };
+
+    if (eventIdParam) {
+      const eid = Number(eventIdParam);
+      if (Number.isFinite(eid)) {
+        if (isSuperAdmin) {
+          // Admin: filter spesifik event saja, abaikan ownership
+          scopeWhere = { id: eid };
+        } else {
+          // User biasa: tetap kunci ke ownership-nya, tambah filter id
+          scopeWhere = { userId, id: eid };
+        }
+      }
+    }
+
     const events = await prisma.event.findMany({
-      where:   { userId },
+      where:   scopeWhere,
       include: { _count: { select: { guests: true } } },
       orderBy: { date: "desc" },
     });
 
+    const guestWhere = eventIdParam
+      ? { eventId: Number(eventIdParam) }
+      : { event: isSuperAdmin && false ? {} : { userId } };
+
     const allGuests = await prisma.guest.findMany({
-      where:  { event: { userId } },
+      where:  guestWhere,
       select: { status: true, rsvpStatus: true, attendance: { select: { pickedUpSouvenir: true } } },
     });
 
