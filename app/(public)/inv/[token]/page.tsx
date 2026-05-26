@@ -7,6 +7,14 @@ import {
   NeonNexusTemplate,
   SakuraDreamTemplate,
   GoldenHourTemplate,
+  MinimalIvoryTemplate,
+  RusticBohoTemplate,
+  SeminarProTemplate,
+  BirthdayPopTemplate,
+  MidnightGlamTemplate,
+  OceanDriftTemplate,
+  RisographRaveTemplate,
+  TerraCottaTemplate,
 } from "@/components/InvitationTemplates";
 import { buildTemplateData } from "@/lib/template-render";
 
@@ -44,6 +52,14 @@ export default async function InvitationPage({ params }: Props) {
       {tmpl === "neon"      && <NeonNexusTemplate        {...propsWithMusic} />}
       {tmpl === "sakura"    && <SakuraDreamTemplate      {...propsWithMusic} />}
       {tmpl === "golden"    && <GoldenHourTemplate       {...propsWithMusic} />}
+      {tmpl === "ivory"     && <MinimalIvoryTemplate     {...propsWithMusic} />}
+      {tmpl === "boho"      && <RusticBohoTemplate       {...propsWithMusic} />}
+      {tmpl === "seminar"   && <SeminarProTemplate       {...propsWithMusic} />}
+      {tmpl === "birthday"  && <BirthdayPopTemplate      {...propsWithMusic} />}
+      {tmpl === "midnight"  && <MidnightGlamTemplate     {...propsWithMusic} />}
+      {tmpl === "ocean"     && <OceanDriftTemplate       {...propsWithMusic} />}
+      {tmpl === "riso"      && <RisographRaveTemplate    {...propsWithMusic} />}
+      {tmpl === "terra"     && <TerraCottaTemplate       {...propsWithMusic} />}
       {(tmpl === "ethereal" || tmpl === "default") && <EtherealGardenTemplate {...propsWithMusic} />}
     </>
   );
