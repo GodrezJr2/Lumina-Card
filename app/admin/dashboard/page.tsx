@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { RoleGate } from "@/components/RoleGate";
@@ -178,6 +178,14 @@ function OnboardingChecklist({ event }: { event: Event }) {
 }
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400 text-sm">Memuat dashboard…</div>}>
+      <DashboardInner />
+    </Suspense>
+  );
+}
+
+function DashboardInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const eventIdParam = searchParams.get("eventId");
