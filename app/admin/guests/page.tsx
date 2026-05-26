@@ -598,9 +598,65 @@ function GuestsContent() {
                 </table>
               </div>
             )}
+
+            {/* ── Summary Footer: live counts ─────────────────────── */}
+            {!loading && filtered.length > 0 && <GuestsSummary guests={filtered} />}
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+// ── Summary Footer ─────────────────────────────────────────────────────────
+function GuestsSummary({ guests }: { guests: Guest[] }) {
+  const total      = guests.length;
+  const rsvpHadir  = guests.filter((g) => g.rsvpStatus === "hadir").length;
+  const rsvpTidak  = guests.filter((g) => g.rsvpStatus === "tidak").length;
+  const rsvpPend   = total - rsvpHadir - rsvpTidak;
+  const checkedIn  = guests.filter((g) => g.status === "Checked_In").length;
+  const souvenir   = guests.filter((g) => g.attendance?.pickedUpSouvenir).length;
+  const opened     = guests.filter((g) => g.status === "Opened" || g.status === "Checked_In").length;
+
+  const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
+
+  const bars: { label: string; n: number; color: string; icon: string }[] = [
+    { label: "RSVP Hadir",     n: rsvpHadir, color: "bg-emerald-500", icon: "how_to_reg" },
+    { label: "RSVP Tidak",     n: rsvpTidak, color: "bg-rose-500",    icon: "cancel" },
+    { label: "RSVP Pending",   n: rsvpPend,  color: "bg-slate-400",   icon: "hourglass_empty" },
+    { label: "Sudah Buka Link", n: opened,    color: "bg-violet-500",  icon: "mark_email_read" },
+    { label: "Hadir di Acara", n: checkedIn, color: "bg-sky-500",     icon: "verified" },
+    { label: "Ambil Souvenir", n: souvenir,  color: "bg-amber-500",   icon: "redeem" },
+  ];
+
+  return (
+    <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+          <span className="material-symbols-outlined text-base text-[#13c8ec]">analytics</span>
+          Ringkasan Kehadiran
+        </h3>
+        <span className="text-xs text-slate-500">Dari <strong className="text-slate-700">{total}</strong> tamu</span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+        {bars.map(({ label, n, color, icon }) => (
+          <div key={label} className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+                <span className="material-symbols-outlined text-sm leading-none">{icon}</span>
+                {label}
+              </span>
+              <span className="text-slate-700 font-bold tabular-nums">{n} <span className="text-slate-400 font-normal">({pct(n)}%)</span></span>
+            </div>
+            <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className={`h-full ${color} transition-all`} style={{ width: `${pct(n)}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-slate-400 mt-4 leading-relaxed">
+        💡 Live counts ikut filter status di atas. RSVP = konfirmasi tamu via undangan publik. Hadir = sudah scan QR di acara.
+      </p>
     </div>
   );
 }
