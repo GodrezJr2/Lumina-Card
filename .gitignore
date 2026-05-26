@@ -22,6 +22,7 @@ scripts/seed-passwords.mjs
 scripts/seed-admin.mjs
 scripts/list-users.mjs
 scripts/delete-old-admin.mjs
+scripts/fix-roles.mjs
 DEMO_FLOW.md
 LAPORAN_REVISI*.md
 *.pdf
